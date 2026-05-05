@@ -36,8 +36,13 @@ from agentlevy.llm.cache import CacheMiss, LLMCache
 T = TypeVar("T", bound=BaseModel)
 
 
-# Project default model. Override per-call if needed.
-DEFAULT_MODEL = "claude-sonnet-4-5"
+# Project default model — Claude Haiku 4.5 across all runtimes:
+# - Local (this client) calls the Anthropic API direct; uses the public
+#   Anthropic model name "claude-haiku-4-5-20251001" (no `global.anthropic.`
+#   prefix, no `-v1:0` suffix — those are Bedrock-only).
+# - AWS Lambda → Bedrock (aws/sanctions_agent/handler.py) uses the Bedrock
+#   inference profile `global.anthropic.claude-haiku-4-5-20251001-v1:0`.
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 DEFAULT_MAX_TOKENS = 4096
 DEFAULT_TEMPERATURE = 0.0  # Determinism wins for KYC; agents can opt in to >0.
 

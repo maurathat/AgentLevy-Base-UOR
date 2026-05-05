@@ -64,7 +64,7 @@ import boto3
 # Model ID on Bedrock. Override per-region via env var if needed.
 DEFAULT_MODEL_ID = os.environ.get(
     "BEDROCK_MODEL_ID",
-    "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    "global.anthropic.claude-haiku-4-5-20251001-v1:0",
 )
 
 # Bedrock client is created once per warm-Lambda invocation.

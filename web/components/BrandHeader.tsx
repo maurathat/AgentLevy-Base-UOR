@@ -17,6 +17,9 @@ export function BrandHeader() {
           <Link href="/architecture" className="hover:text-karakurenai transition-colors">
             Architecture
           </Link>
+          <Link href="/audit" className="hover:text-karakurenai transition-colors">
+            Audit
+          </Link>
           <a
             href="https://github.com/maurathat/AgentLevy-Base-UOR"
             target="_blank"

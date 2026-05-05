@@ -19,10 +19,11 @@ Globals:
 Parameters:
   BedrockModelId:
     Type: String
-    Default: us.anthropic.claude-3-5-sonnet-20241022-v2:0
+    Default: global.anthropic.claude-haiku-4-5-20251001-v1:0
     Description: >
-      Bedrock model identifier for the LLM screen.
-      Default uses the Claude 3.5 Sonnet inference profile (us-east-1).
+      Bedrock model identifier for the LLM screen. Default uses the
+      Claude Haiku 4.5 GLOBAL cross-region inference profile (highest
+      throughput; routes across all available AWS regions).
 
 Resources:
   SanctionsAgentFunction:
