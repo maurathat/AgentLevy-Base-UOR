@@ -44,6 +44,15 @@ Resources:
                 - bedrock:InvokeModel
                 - bedrock:InvokeModelWithResponseStream
               Resource: "*"
+            - Effect: Allow
+              Action:
+                # Required for first-time Bedrock model auto-subscription on
+                # accounts where Anthropic models are served via Marketplace
+                # (most new accounts as of 2026).
+                - aws-marketplace:Subscribe
+                - aws-marketplace:ViewSubscriptions
+                - aws-marketplace:Unsubscribe
+              Resource: "*"
       Events:
         ScreenApi:
           Type: HttpApi
