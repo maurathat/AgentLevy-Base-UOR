@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "agentlevy": {
+      "command": "/Users/mauraclark/AgentLevy-Base-UOR/.venv/bin/python",
+      "args": ["-m", "agentlevy.mcp_server.server"],
+      "cwd": "/Users/mauraclark/AgentLevy-Base-UOR",
+      "env": {
+        "PYTHONPATH": "/Users/mauraclark/AgentLevy-Base-UOR",
+        "HEDERA_MIRROR_NODE_URL": "https://testnet.mirrornode.hedera.com"
+      }
+    }
+  }
+}
