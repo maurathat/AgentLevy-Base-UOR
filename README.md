@@ -24,14 +24,21 @@
 
 ## 🖼️ Screenshots
 
-*Replace with actual screenshots after capture*
+### Landing — the pitch in 30 seconds
 
-| Page | Screenshot |
-|---|---|
-| Landing | `docs/screenshots/landing.png` |
-| Demo (animated walkthrough) | `docs/screenshots/demo.png` |
-| Architecture | `docs/screenshots/architecture.png` |
-| Audit (KIRO MCP) | `docs/screenshots/audit.png` |
+![Landing page](docs/screenshots/01-landing.png)
+
+### Demo — animated walkthrough of the cert chain forming
+
+![Demo page](docs/screenshots/02-demo.png)
+
+### Architecture — three layers, two ledgers, one protocol
+
+![Architecture page](docs/screenshots/03-architecture.png)
+
+### Audit — KIRO + AgentLevy MCP composition (Phase 5)
+
+![Audit page](docs/screenshots/04-audit.png)
 
 ---
 
