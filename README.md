@@ -1,147 +1,272 @@
 # AgentLevy-Base-UOR
 
-> **EasyA Consensus 2026 Hackathon — Track 2: x402 on Base for Agents.** Two AI agents negotiate and execute a verifiable KYC compliance task, pay each other via **x402 on Base**, settle through a smart-contract escrow on cert-hash match, and anchor every cert to **Hedera HCS** for tamper-evident timestamping. Content addresses are **byte-identical to UOR Foundation's canonical reference**. Verifiable from public keys alone, across two independent ledgers.
+> **EasyA Consensus 2026 Hackathon — Track 2: x402 on Base for Agents.** Verifiable agent-commerce protocol. Two AI agents negotiate and execute a KYC compliance task, settle on Base via a hashlock USDC escrow, and anchor every cert to Hedera Consensus Service for tamper-evident timestamping. The audit trail is verifiable from public keys alone, across two independent ledgers, with no trusted intermediary.
 
-> 🌐 **Live demo:** [web-2a8dm2ehp-maurathats-projects.vercel.app](https://web-2a8dm2ehp-maurathats-projects.vercel.app) — interactive walkthrough of the cert chain forming, sanctions hits, and Hedera anchors with real on-chain verification links.
-
-This is a **sibling implementation** to [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) — same protocol primitives, different settlement chain. Demonstrates the chain-neutrality of the underlying VTEAI standard via UOR-ADDR-1 chain-binding adapters.
-
-| Layer | This repo | Sibling (AgentLevy-XRPL-UOR) |
-|---|---|---|
-| **Settlement** | Base + x402 + Solidity escrow + USDC | XRPL XLS-100 SmartEscrow + RLUSD |
-| **Audit anchor** | Hedera HCS (testnet) | Hedera HCS (testnet) |
-| **Content addressing** | UOR-Passport (sha256:hex) | UOR-Passport (sha256:hex) |
-| **Cert primitives** | Identical | Identical |
-| **LLM stack** | Identical (Anthropic + cache) | Identical |
-| **Standards** | VTEAI ERC + UOR-ADDR-1 | VTEAI ERC + UOR-ADDR-1 |
-
-The cert primitives, LLM stack, Hedera anchor, brand assets, and standards drafts port verbatim. Only the settlement layer differs.
+🌐 **Live website:** *(paste current Vercel URL after submission)*
+📦 **Repo:** https://github.com/maurathat/AgentLevy-Base-UOR
+🔍 **Live escrow contract** (Base Sepolia): [`0x5A23958A…6ef3`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)
+📜 **Live HCS audit topic** (Hedera Testnet): [`0.0.8856047`](https://hashscan.io/testnet/topic/0.0.8856047)
+🤖 **Live AWS Lambda agent**: `https://1q4dt1zune.execute-api.us-east-1.amazonaws.com/screen`
 
 ---
 
-## What's here
+## 🎬 Demo video
 
+*Paste screen-capture demo URL here once recorded (YouTube / Vimeo / Loom)*
+
+> **What the demo shows**: Animated walkthrough of the cert chain forming — TaskSpec drafted, both signatures, compliance agent extracts beneficial owners via Anthropic, sanctions agent runs on AWS Lambda, both certs anchored on Hedera HCS, escrow settles when sha256 matches. ~90 seconds.
+
+## 🎙️ Audio walkthrough (Loom)
+
+*Paste Loom URL here once recorded*
+
+> 5–10 minute walkthrough of the project, repo structure, technology choices, and a live demo. Required by hackathon submission rules.
+
+## 🖼️ Screenshots
+
+*Replace with actual screenshots after capture*
+
+| Page | Screenshot |
+|---|---|
+| Landing | `docs/screenshots/landing.png` |
+| Demo (animated walkthrough) | `docs/screenshots/demo.png` |
+| Architecture | `docs/screenshots/architecture.png` |
+| Audit (KIRO MCP) | `docs/screenshots/audit.png` |
+
+---
+
+## How the blockchain interaction works
+
+AgentLevy uses **two blockchains** simultaneously, each playing to its strength:
+
+### Base (settlement)
+
+The buyer agent deposits USDC into a **deployed `HashlockEscrow` Solidity contract** on Base Sepolia. The escrow is conditional on a single rule: when anyone submits a payload whose `sha256(payload)` matches the hashlock committed at escrow creation, the contract releases the USDC to the seller. The hashlock IS the expected cert content address.
+
+```solidity
+function finishEscrow(bytes32 escrowId, bytes calldata certPayload) external {
+    Escrow storage e = escrows[escrowId];
+    require(!e.released, "released");
+    require(sha256(certPayload) == e.hashlock, "cert mismatch");  // the only check
+    e.released = true;
+    require(token.transfer(e.seller, e.amount), "transfer failed");
+    emit EscrowReleased(escrowId, sha256(certPayload));
+}
 ```
-AgentLevy-Base-UOR/
-├── README.md                  # this file
-├── CANONICAL_FORM.md          # JCS-RFC8785 + NFC discipline
-├── LICENSE                    # Apache 2.0
-├── .env.example               # template (Base + Hedera + LLM creds)
-├── requirements.txt           # Python deps (core protocol)
-├── vendor/
-│   └── prism.py               # UOR Foundation PRISM (MIT, vendored)
-├── agentlevy/
-│   ├── primitives/            # canonical, fingerprint, signing, task_spec, cert
-│   ├── llm/                   # client + cache + schemas + prompts
-│   ├── hedera_layer/          # HCS audit anchor (mock + live)
-│   ├── base_layer/            # Base + x402 settlement (Phase 2.8)
-│   ├── prism_layer/           # PRISM Q(31) wrapper
-│   ├── agents/                # buyer, compliance, sanctions (Phase 2.5)
-│   └── protocol/              # bounded-turn negotiation (Phase 2.6)
-├── contracts/                 # Solidity escrow contract
-├── web/                       # Node sub-project (Coinbase SDKs)
-│   └── src/                   # @coinbase/cdp-sdk + @coinbase/onchainkit
-├── scripts/
-│   ├── setup_hcs_topic.py     # Hedera topic creator (one-shot)
-│   └── ...
-├── tests/                     # 128 tests, all chain-neutral
-├── docs/                      # UOR Foundation overview, byte-identical proof
-├── pitch/                     # demo deck, whitepaper, VTEAI + UOR-ADDR-1 drafts
-├── Kessai/                    # brand kit
-└── fixtures/                  # cached LLM responses for deterministic demo
+
+That's it. **No oracle. No off-chain settlement. The cert IS the proof.**
+
+### Hedera (audit anchor)
+
+Independently, every signed `DerivationCert` publishes its content address to a Hedera Consensus Service topic via `TopicMessageSubmit`. HCS provides:
+
+- An authoritative **consensus timestamp** (when did this cert exist, witnessed by Hedera consensus?)
+- A **monotonic sequence number** within the topic
+- A **publicly queryable Mirror Node REST API** — `curl-able` verification
+
+```python
+# agentlevy/hedera_layer/anchor.py — submitting an anchor
+tx = TopicMessageSubmitTransaction()
+tx.set_topic_id(TopicId.from_string("0.0.8856047"))
+tx.set_message(content_address)  # "sha256:eb22...4667"
+receipt = tx.execute(client)
 ```
+
+```bash
+# anyone can re-verify with curl, no SDK needed:
+curl https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.8856047/messages/1
+```
+
+### The composition
+
+| Layer | Chain | What it provides |
+|---|---|---|
+| **Settlement** | Base Sepolia | XLS-100-style hashlock escrow, releases USDC on cert-hash match |
+| **Audit anchor** | Hedera Testnet | Consensus-witnessed timestamp + sequence number per cert |
+
+Settlement says *the money moved*. The audit anchor says *the cert existed at this exact moment, witnessed by consensus*. Together: cross-ledger redundancy + independent governance.
+
+---
 
 ## Architecture
 
-**Three layers, two chains, one protocol:**
+**Three runtimes. One cert chain.**
 
-1. **Cert chain** (chain-neutral, Python) — `TaskSpec` + `DerivationCert` with UOR-Passport content addresses. Same primitives as the XRPL sibling repo.
-2. **Settlement on Base** (TypeScript/Node, `web/`) — Coinbase x402 SDK handles agent-to-agent payments in USDC; a minimal Solidity escrow contract holds funds with a hashlock on the expected final-cert content address; releases when the hash matches.
-3. **Audit anchor on Hedera** (Python, `agentlevy/hedera_layer/`) — every signed cert's content address is published to a Hedera Consensus Service topic for tamper-evident timestamping. Independent witness; survives any single-chain failure.
+```
+   ┌─────────────────────────────────────────────────────────┐
+   │  Buyer agent (orchestrator)                             │
+   │    drafts TaskSpec, signs, deposits USDC into escrow    │
+   └────────────────────┬────────────────────────────────────┘
+                        │
+          ┌─────────────┴─────────────┐
+          ▼                           ▼
+   ┌──────────────────┐       ┌──────────────────┐
+   │  Compliance      │ ────▶ │  Sanctions agent │
+   │  agent (local)   │       │  (AWS Lambda +   │
+   │  + Anthropic     │       │   Bedrock Haiku) │
+   └────────┬─────────┘       └────────┬─────────┘
+            │                          │
+            │  signs DerivationCerts   │
+            │                          │
+            ▼                          ▼
+   ┌─────────────────────────────────────────────┐
+   │       UOR-Passport content addresses        │
+   │   (sha256 of JCS-RFC8785 canonical bytes)   │
+   └─────────────────┬───────────────────────────┘
+                     │
+       ┌─────────────┴─────────────┐
+       ▼                           ▼
+   ┌──────────────────┐       ┌──────────────────┐
+   │  Base settlement │       │  Hedera HCS      │
+   │  (escrow USDC    │       │  (consensus      │
+   │   releases on    │       │   timestamps for │
+   │   sha256 match)  │       │   every cert)    │
+   └──────────────────┘       └──────────────────┘
 
-A verifier holding `(buyer_pubkey, seller_pubkey, sanctions_pubkey, the cert chain)` can independently re-check every signature, every content address, every cross-reference, every consensus timestamp, and the Base settlement event — across two independent ledgers, with no trusted intermediary.
+   ┌───────────────────────────────────────────────────────────┐
+   │  Phase 5: AgentLevy MCP server in KIRO IDE                │
+   │  Auditors verify cert chains step-by-step + emit signed   │
+   │  audit-summary certs (recursive verifiability)            │
+   └───────────────────────────────────────────────────────────┘
+```
 
-## Demo flow
+---
 
-1. **Buyer agent** drafts a TaskSpec for `kyc.beneficial_ownership_verify`, signs it, deposits USDC into the Base escrow contract with a hashlock on the expected final cert hash.
-2. **Compliance agent** accepts the spec, reads the (synthetic) corporate disclosure, extracts beneficial owners via Anthropic structured-output, **subcontracts** sanctions screening to a third agent.
-3. **Sanctions agent** screens names against a synthetic sanctions list, signs a `DerivationCert` with `SanctionsScreenResult` as output. Receives x402 micropayment from compliance agent.
-4. **Compliance agent** assembles a parent `DerivationCert` referencing the sanctions cert by content address, signs it. Anchors to Hedera HCS topic.
-5. **Final cert hash** submitted to the Base escrow contract → matches the hashlock → releases USDC to compliance agent.
-6. Audit trail = the cert chain + the HCS receipts + the Base transaction history. Verifiable from public keys alone, forever.
+## What's in the repo
+
+```
+AgentLevy-Base-UOR/
+├── README.md                        # this file
+├── SUBMISSION.md                    # EasyA submission text (summary, description, technical)
+├── CANONICAL_FORM.md                # JCS-RFC8785 + NFC discipline
+├── LICENSE                          # Apache 2.0
+├── .env.example                     # template (Base + Hedera + LLM + AWS creds)
+├── requirements.txt                 # Python deps (chain-neutral protocol)
+├── vendor/
+│   └── prism.py                     # UOR Foundation PRISM (MIT, vendored)
+├── agentlevy/                       # Python core (chain-neutral protocol)
+│   ├── primitives/                  # canonical, signing, task_spec, cert (UOR-aligned)
+│   ├── llm/                         # Anthropic client + cache + schemas + prompts
+│   ├── hedera_layer/                # HCS audit anchor (mock + live)
+│   ├── base_layer/                  # Base RPC + escrow contract Python wrapper
+│   ├── prism_layer/                 # PRISM Q(31) wrapper
+│   ├── mcp_server/                  # Phase 5: MCP server for KIRO
+│   ├── agents/orchestrator.py       # end-to-end demo runner
+│   └── protocol/                    # bounded-turn negotiation (future)
+├── aws/sanctions_agent/             # AWS Lambda (Python) + SAM IaC
+│   ├── handler.py                   # Lambda entry; calls Bedrock Claude Haiku 4.5
+│   ├── template.yaml                # SAM: Lambda + API Gateway + IAM
+│   ├── requirements.txt             # boto3
+│   └── README.md                    # deploy instructions
+├── contracts/
+│   ├── HashlockEscrow.sol           # ~100 LoC Solidity
+│   └── abi/HashlockEscrow.json      # compiled ABI for the Python wrapper
+├── web/                             # Next.js website (Vercel-deployed)
+│   ├── app/
+│   │   ├── page.tsx                 # landing
+│   │   ├── demo/page.tsx            # animated walkthrough
+│   │   ├── architecture/page.tsx    # 3-layer breakdown + Phase 4 callout
+│   │   └── audit/page.tsx           # KIRO + AgentLevy MCP composition
+│   ├── components/                  # Brand header/footer + Tailwind/Kessai theme
+│   └── lib/demo-data.ts             # hardcoded captured live-run results
+├── pitch/                           # Whitepaper + standards drafts + Gamma decks
+│   ├── WHITEPAPER.md                # ~5,000 words: architecture, landscape, use cases, risk
+│   ├── VTEAI-DRAFT.md               # ERC draft, CC0, April 2026 (we authored)
+│   ├── UOR-ADDR-PROPOSAL.md         # community proposal, April 2026 (we co-contribute)
+│   └── agentlevy-demo-deck.md       # 12-slide deck (Gamma-importable; Canva conversion required for EasyA submission)
+├── scripts/
+│   ├── setup_hcs_topic.py           # Hedera topic creator (one-shot)
+│   ├── deploy_escrow.py             # Base contract deployer (one-shot)
+│   └── make_sample_cert.py          # deterministic sample cert for KIRO testing
+├── tests/                           # 128 tests, all chain-neutral
+├── docs/                            # UOR Foundation overview, byte-identical proof
+├── Kessai/                          # brand kit (logos, colors, typography)
+└── fixtures/                        # synthetic KYC inputs + cached LLM responses
+```
+
+---
 
 ## Setup
 
-**Requires:** Python ≥ 3.10, Node ≥ 18.
+**Requires:** Python ≥ 3.10, Node ≥ 18, AWS CLI + SAM CLI (for the AWS Lambda deploy).
+
+### 1. Python core (cert primitives + LLM + Hedera)
 
 ```bash
-# Python core (cert primitives + LLM + Hedera)
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
 
-# Node web/ subproject (Coinbase Base + x402 SDKs)
+### 2. Node / website
+
+```bash
 cd web
 npm install
 cd ..
-
-# Environment
-cp .env.example .env
-# Fill in the credentials per .env.example comments — at minimum:
-# - ANTHROPIC_API_KEY
-# - CDP_API_KEY_NAME + CDP_API_KEY_PRIVATE_KEY (from portal.cdp.coinbase.com)
-# - BASE_BUYER_PRIVATE_KEY + BASE_COMPLIANCE_PRIVATE_KEY + BASE_SANCTIONS_PRIVATE_KEY
-# - HEDERA_OPERATOR_ID + HEDERA_OPERATOR_PRIVATE_KEY (from portal.hedera.com)
-# - HEDERA_HCS_TOPIC_ID (run scripts/setup_hcs_topic.py to create one)
-
-# Run tests (128 pass; 2 live integration tests skipped by default)
-python -m pytest tests/
-
-# Set up the Hedera HCS audit topic (one-shot)
-python scripts/setup_hcs_topic.py
-
-# Deploy the Base escrow contract (one-shot, Phase 2.8)
-# cd web && npm run deploy:escrow
 ```
+
+### 3. Environment
+
+```bash
+cp .env.example .env
+```
+
+Fill in:
+- `ANTHROPIC_API_KEY` — for the local Anthropic-direct fallback
+- `BASE_RPC_URL` — `https://sepolia.base.org`
+- `BASE_ESCROW_ADDRESS` — already set to `0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3` (deployed)
+- `BASE_BUYER_PRIVATE_KEY` / `BASE_COMPLIANCE_PRIVATE_KEY` / `BASE_SANCTIONS_PRIVATE_KEY` — generate via `scripts/make_sample_cert.py` or use your own EOA private keys
+- `HEDERA_OPERATOR_ID` / `HEDERA_OPERATOR_PRIVATE_KEY` — from portal.hedera.com (free testnet)
+- `HEDERA_HCS_TOPIC_ID` — `0.0.8856047` (use ours, or `python scripts/setup_hcs_topic.py` to create your own)
+- `AWS_SANCTIONS_AGENT_URL` — optional; if unset, orchestrator uses local Anthropic
+- `MOCK_HEDERA=false` (live anchor) and `MOCK_BASE_SETTLEMENT=true` (mock escrow if your buyer has no USDC)
+
+### 4. Run end-to-end
+
+```bash
+python -m agentlevy.agents.orchestrator
+```
+
+Walks the full 9-phase demo (TaskSpec → both LLM calls → cert chain → Hedera anchors → escrow hash math → audit trail). Uses the configured AWS Lambda for sanctions screening if reachable; falls back to local Anthropic gracefully if Bedrock returns errors.
+
+### 5. Run tests
+
+```bash
+python -m pytest tests/
+# 128 passed, 2 skipped (live integration tests)
+```
+
+### 6. Run the website locally
+
+```bash
+cd web
+npm run dev
+# http://localhost:3000
+```
+
+---
 
 ## Standards alignment
 
-- **VTEAI** (Verified Task Escrow + Attestation Interface) — ERC draft, CC0, April 2026. **Authored by this project.** [pitch/VTEAI-DRAFT.md](pitch/VTEAI-DRAFT.md).
-- **UOR-ADDR-1** (Universal Object Reference Address) — community proposal, April 2026. **Co-contributed by this project.** [pitch/UOR-ADDR-PROPOSAL.md](pitch/UOR-ADDR-PROPOSAL.md).
-- **PRISM** — UOR Foundation's reference implementation, vendored at [`vendor/prism.py`](vendor/prism.py) (MIT).
+- **VTEAI** (Verified Task Escrow + Attestation Interface) — ERC draft, CC0, April 2026. **Authored by this project.** [pitch/VTEAI-DRAFT.md](pitch/VTEAI-DRAFT.md)
+- **UOR-ADDR-1** (Universal Object Reference Address) — community proposal. **Co-contributed by this project.** [pitch/UOR-ADDR-PROPOSAL.md](pitch/UOR-ADDR-PROPOSAL.md)
+- **PRISM** — UOR Foundation reference implementation, vendored at [vendor/prism.py](vendor/prism.py) (MIT)
 
 Content addresses are **byte-identical** to UOR Foundation's canonical reference. Verified live via `mcp.uor.foundation/encode_address`. See [docs/UOR_PASSPORT_VERIFIED.md](docs/UOR_PASSPORT_VERIFIED.md).
 
+---
+
 ## Pitch material
 
-- **[Whitepaper](pitch/WHITEPAPER.md)** — 5,000-word deep-dive: architecture, competitive landscape (Coinbase x402, Virtuals ACP, etc.), customer use cases (banks, M&A, title, healthcare, legal docs, AI inference), risk model, roadmap.
-- **[Demo deck](pitch/agentlevy-demo-deck.md)** — 12-slide hackathon deck.
+- **[Whitepaper](pitch/WHITEPAPER.md)** — ~5,000-word deep-dive: architecture, competitive landscape (Coinbase x402, Virtuals ACP, etc.), customer use cases (banks, M&A, title, healthcare, legal docs, AI inference), risk model, roadmap (Phase 4 AgentCore + Phase 5 KIRO MCP).
+- **[Demo deck](pitch/agentlevy-demo-deck.md)** — 12-slide hackathon deck (Markdown source; converted to Canva for EasyA submission).
 - **[VTEAI ERC draft](pitch/VTEAI-DRAFT.md)** + **[UOR-ADDR-1 proposal](pitch/UOR-ADDR-PROPOSAL.md)** — the standards.
 
-## Implementation notes
-
-### x402 Python SDK observation (constructive feedback)
-
-We engaged with the official `x402` Python SDK during the build. The SDK exposes a clean abstraction — `x402ClientSync`, `x402ResourceServerSync`, `HTTPFacilitatorClientSync` — but it requires implementers to **`register()` custom scheme implementations** before sending or accepting any payments.
-
-A "scheme" in x402 is the tuple of *(cryptographic payment authorization mechanism, target chain, asset)*. The SDK's modular design (one scheme per registration) makes the protocol genuinely chain-agnostic and asset-agnostic, which is the right architectural choice for a long-lived standard. The TypeScript SDK ships pre-built schemes for common cases — Base + USDC works out-of-the-box. The Python SDK is newer and lower-level: there's no bundled `eip3009` + Base + USDC scheme implementation, so a Python team has to either write a `SchemeRegistration` (EIP-712 typed-data builder + EIP-3009 signature verifier + on-chain settlement code, several hundred lines of crypto-careful Python) or build x402-conformant flows at the HTTP wire level using a different settlement primitive.
-
-For this hackathon's timebox, we chose the pragmatic path: keep our hashlock-conditional escrow contract (`HashlockEscrow` deployed at [`0x5A23958A...`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)) as the settlement primitive, and build a dedicated x402-protected endpoint as a separate showcase that uses the SDK end-to-end. The cert chain + UOR-Passport addressing + Hedera HCS audit anchor work identically either way.
-
-**Constructive feedback for Coinbase**: shipping a `x402.schemes.eip3009_evm` module pre-registered for the common (USDC on Base / Polygon / Arbitrum) tuple would dramatically lower the on-ramp for Python-stack teams and align the Python SDK's developer experience with the TypeScript flagship.
+---
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE). Vendored PRISM (`vendor/prism.py`) retains its upstream MIT license; see [vendor/LICENSE-prism](vendor/LICENSE-prism).
+Apache License 2.0 — see [LICENSE](LICENSE). Vendored PRISM (`vendor/prism.py`) retains its upstream MIT license; see [vendor/LICENSE-prism](vendor/LICENSE-prism).
 
-## References
-
-- Coinbase x402 spec: https://x402.org
-- Coinbase Developer Platform: https://portal.cdp.coinbase.com
-- Base: https://base.org
-- Base Sepolia testnet: https://sepolia.basescan.org
-- Hedera Consensus Service: https://docs.hedera.com/hedera/sdks-and-apis/sdks/consensus-service
-- Hashscan (this project's HCS topic, when configured): https://hashscan.io/testnet/topic/0.0.8856047
-- UOR Foundation: https://uor.foundation
-- PRISM: https://github.com/UOR-Foundation/prism
-- Sibling repo (XRPL-side): https://github.com/maurathat/AgentLevy-XRPL-UOR
+— Maura Clark · @maurathat
