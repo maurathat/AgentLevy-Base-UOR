@@ -1,0 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply font-body bg-ruri text-washi;
+  }
+  body {
+    @apply min-h-screen antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  ::selection {
+    @apply bg-karakurenai/40 text-washi;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-xs font-body font-medium uppercase tracking-eyebrow text-washi/70;
+  }
+  .hairline {
+    @apply h-px w-full bg-washi/20;
+  }
+}
