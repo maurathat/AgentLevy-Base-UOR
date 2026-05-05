@@ -1,0 +1,83 @@
+{
+  "raw": {
+    "container": null,
+    "content": [
+      {
+        "caller": {
+          "type": "direct"
+        },
+        "id": "toolu_01SUUQkfcLkTGssZYce7k75A",
+        "input": {
+          "hits": [
+            {
+              "matched_sanctions_entry": null,
+              "name_screened": "ALICE WONG",
+              "notes": null,
+              "severity": "clear"
+            },
+            {
+              "matched_sanctions_entry": "ROBERT QUINN (OFAC SDN) - Synthetic test entry",
+              "name_screened": "ROBERT QUINN",
+              "notes": null,
+              "severity": "exact_match"
+            },
+            {
+              "matched_sanctions_entry": null,
+              "name_screened": "MARIA SCHMIDT",
+              "notes": null,
+              "severity": "clear"
+            }
+          ],
+          "sanctions_list_version": "OFAC-SDN-2026-04-15",
+          "screened_at": "2026-04-15T12:00:00Z"
+        },
+        "name": "emit_sanctions_screen_result",
+        "type": "tool_use"
+      }
+    ],
+    "id": "msg_01NJCy13GHq769Pccd9u2pn4",
+    "model": "claude-sonnet-4-5-20250929",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "tool_use",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "not_available",
+      "input_tokens": 1697,
+      "output_tokens": 253,
+      "server_tool_use": null,
+      "service_tier": "standard"
+    }
+  },
+  "tool_input": {
+    "hits": [
+      {
+        "matched_sanctions_entry": null,
+        "name_screened": "ALICE WONG",
+        "notes": null,
+        "severity": "clear"
+      },
+      {
+        "matched_sanctions_entry": "ROBERT QUINN (OFAC SDN) - Synthetic test entry",
+        "name_screened": "ROBERT QUINN",
+        "notes": null,
+        "severity": "exact_match"
+      },
+      {
+        "matched_sanctions_entry": null,
+        "name_screened": "MARIA SCHMIDT",
+        "notes": null,
+        "severity": "clear"
+      }
+    ],
+    "sanctions_list_version": "OFAC-SDN-2026-04-15",
+    "screened_at": "2026-04-15T12:00:00Z"
+  }
+}

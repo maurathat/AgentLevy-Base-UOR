@@ -1,0 +1,77 @@
+{
+  "raw": {
+    "container": null,
+    "content": [
+      {
+        "caller": {
+          "type": "direct"
+        },
+        "id": "toolu_01HF6Qfq3iNihN1cuBrVUTYR",
+        "input": {
+          "extraction_notes": "Document filed pursuant to FinCEN Beneficial Ownership Reporting Rule and Corporate Transparency Act. Three UBOs disclosed with ownership totaling 100%. All owners clearly identified with roles, percentages, and addresses. Filed 2026-04-12, jurisdiction: Delaware, USA.",
+          "owners": [
+            {
+              "name": "ALICE WONG",
+              "ownership_percentage": 51.0,
+              "role": "Director"
+            },
+            {
+              "name": "ROBERT QUINN",
+              "ownership_percentage": 30.0,
+              "role": "Trustee"
+            },
+            {
+              "name": "MARIA SCHMIDT",
+              "ownership_percentage": 19.0,
+              "role": "Officer"
+            }
+          ],
+          "subject_entity": "ACME HOLDINGS LIMITED"
+        },
+        "name": "emit_beneficial_ownership_extraction",
+        "type": "tool_use"
+      }
+    ],
+    "id": "msg_0126ya2QZnVfD2s7u5S3N14U",
+    "model": "claude-sonnet-4-5-20250929",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "tool_use",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "not_available",
+      "input_tokens": 1785,
+      "output_tokens": 250,
+      "server_tool_use": null,
+      "service_tier": "standard"
+    }
+  },
+  "tool_input": {
+    "extraction_notes": "Document filed pursuant to FinCEN Beneficial Ownership Reporting Rule and Corporate Transparency Act. Three UBOs disclosed with ownership totaling 100%. All owners clearly identified with roles, percentages, and addresses. Filed 2026-04-12, jurisdiction: Delaware, USA.",
+    "owners": [
+      {
+        "name": "ALICE WONG",
+        "ownership_percentage": 51.0,
+        "role": "Director"
+      },
+      {
+        "name": "ROBERT QUINN",
+        "ownership_percentage": 30.0,
+        "role": "Trustee"
+      },
+      {
+        "name": "MARIA SCHMIDT",
+        "ownership_percentage": 19.0,
+        "role": "Officer"
+      }
+    ],
+    "subject_entity": "ACME HOLDINGS LIMITED"
+  }
+}

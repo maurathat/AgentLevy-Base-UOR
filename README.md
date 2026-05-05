@@ -116,6 +116,18 @@ Content addresses are **byte-identical** to UOR Foundation's canonical reference
 - **[Demo deck](pitch/agentlevy-demo-deck.md)** — 12-slide hackathon deck.
 - **[VTEAI ERC draft](pitch/VTEAI-DRAFT.md)** + **[UOR-ADDR-1 proposal](pitch/UOR-ADDR-PROPOSAL.md)** — the standards.
 
+## Implementation notes
+
+### x402 Python SDK observation (constructive feedback)
+
+We engaged with the official `x402` Python SDK during the build. The SDK exposes a clean abstraction — `x402ClientSync`, `x402ResourceServerSync`, `HTTPFacilitatorClientSync` — but it requires implementers to **`register()` custom scheme implementations** before sending or accepting any payments.
+
+A "scheme" in x402 is the tuple of *(cryptographic payment authorization mechanism, target chain, asset)*. The SDK's modular design (one scheme per registration) makes the protocol genuinely chain-agnostic and asset-agnostic, which is the right architectural choice for a long-lived standard. The TypeScript SDK ships pre-built schemes for common cases — Base + USDC works out-of-the-box. The Python SDK is newer and lower-level: there's no bundled `eip3009` + Base + USDC scheme implementation, so a Python team has to either write a `SchemeRegistration` (EIP-712 typed-data builder + EIP-3009 signature verifier + on-chain settlement code, several hundred lines of crypto-careful Python) or build x402-conformant flows at the HTTP wire level using a different settlement primitive.
+
+For this hackathon's timebox, we chose the pragmatic path: keep our hashlock-conditional escrow contract (`HashlockEscrow` deployed at [`0x5A23958A...`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)) as the settlement primitive, and build a dedicated x402-protected endpoint as a separate showcase that uses the SDK end-to-end. The cert chain + UOR-Passport addressing + Hedera HCS audit anchor work identically either way.
+
+**Constructive feedback for Coinbase**: shipping a `x402.schemes.eip3009_evm` module pre-registered for the common (USDC on Base / Polygon / Arbitrum) tuple would dramatically lower the on-ramp for Python-stack teams and align the Python SDK's developer experience with the TypeScript flagship.
+
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE). Vendored PRISM (`vendor/prism.py`) retains its upstream MIT license; see [vendor/LICENSE-prism](vendor/LICENSE-prism).

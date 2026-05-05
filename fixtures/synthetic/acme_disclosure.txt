@@ -1,0 +1,30 @@
+ACME HOLDINGS LIMITED — Beneficial Ownership Disclosure
+Filed: 2026-04-12
+Jurisdiction: Delaware, USA
+Entity Type: Holding Company
+
+This disclosure is provided pursuant to Title 31 CFR Part 1010 (the FinCEN
+Beneficial Ownership Reporting Rule) and the Corporate Transparency Act.
+
+ULTIMATE BENEFICIAL OWNERS (UBOs):
+
+1. ALICE WONG
+   Role: Director, 51% beneficial ownership
+   Address: 100 Market Street, San Francisco, CA 94105
+   Nationality: USA
+
+2. ROBERT QUINN
+   Role: Trustee, 30% beneficial ownership
+   Address: 200 Lincoln Way, Boston, MA 02118
+   Nationality: USA
+
+3. MARIA SCHMIDT
+   Role: Officer, 19% beneficial ownership
+   Address: 300 Königsallee, Düsseldorf, Germany 40212
+   Nationality: Germany
+
+The undersigned certifies under penalty of perjury that the information
+provided above is true and complete to the best of their knowledge.
+
+— Alice Wong, Director (signature on file)
+— Filed via FinCEN BOI Reporting Portal, ID: BOI-2026-04-12-AMC-7831

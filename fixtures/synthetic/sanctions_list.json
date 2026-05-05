@@ -1,0 +1,9 @@
+{
+  "list_version": "OFAC-SDN-2026-04-15",
+  "source": "Synthetic for AgentLevy demo (NOT real OFAC data)",
+  "entries": [
+    {"name": "ROBERT QUINN", "list": "OFAC SDN", "reason": "Synthetic test entry", "match_strength": "exact"},
+    {"name": "ROBERT Q.", "list": "EU CFSP", "reason": "Synthetic test entry", "match_strength": "weak"},
+    {"name": "VLADIMIR SYNTHETIC", "list": "OFAC SDN", "reason": "Synthetic test entry", "match_strength": "exact"}
+  ]
+}
