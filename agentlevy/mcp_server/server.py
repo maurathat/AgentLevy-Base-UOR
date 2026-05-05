@@ -181,6 +181,38 @@ TOOLS: list[Tool] = [
         },
     ),
     Tool(
+        name="verify_base_escrow",
+        description=(
+            "Read the live Base Sepolia HashlockEscrow contract state for a "
+            "given escrow_id. Returns the escrow record (buyer, seller, "
+            "amount, hashlock, deadline, released, refunded) and confirms "
+            "the on-chain hashlock matches the expected cert content_address. "
+            "Read-only — no transactions are submitted."
+        ),
+        inputSchema={
+            "type": "object",
+            "required": ["escrow_id_hex", "expected_cert_address"],
+            "properties": {
+                "escrow_id_hex": {
+                    "type": "string",
+                    "description": "Escrow ID as hex string (with or without 0x prefix), 64 hex chars",
+                },
+                "expected_cert_address": {
+                    "type": "string",
+                    "description": "Expected sha256:<hex> address that should be the hashlock",
+                },
+                "rpc_url": {
+                    "type": "string",
+                    "description": "Optional Base RPC URL override (default: BASE_RPC_URL env)",
+                },
+                "contract_address": {
+                    "type": "string",
+                    "description": "Optional contract address override (default: BASE_ESCROW_ADDRESS env)",
+                },
+            },
+        },
+    ),
+    Tool(
         name="emit_audit_cert",
         description=(
             "Build and sign an audit-summary DerivationCert that attests to "
@@ -343,6 +375,78 @@ def _audit_cert_chain_impl(
     }
 
 
+def _verify_base_escrow_impl(
+    escrow_id_hex: str,
+    expected_cert_address: str,
+    rpc_url: str | None = None,
+    contract_address: str | None = None,
+) -> dict:
+    """Read the deployed HashlockEscrow contract state for a given escrow_id."""
+    try:
+        from agentlevy.base_layer.escrow import (
+            BaseConfig,
+            content_address_to_hashlock,
+            get_escrow,
+        )
+    except ImportError as e:
+        return {"ok": False, "stage": "import", "error": str(e)}
+
+    # Allow per-call overrides without polluting the env.
+    rpc = rpc_url or os.environ.get("BASE_RPC_URL", "https://sepolia.base.org")
+    escrow_addr = contract_address or os.environ.get("BASE_ESCROW_ADDRESS", "")
+    if not escrow_addr:
+        return {"ok": False, "stage": "config", "error": "BASE_ESCROW_ADDRESS not set"}
+
+    try:
+        from web3 import Web3
+        cfg = BaseConfig(
+            rpc_url=rpc,
+            chain_id=Web3(Web3.HTTPProvider(rpc)).eth.chain_id,
+            escrow_address=Web3.to_checksum_address(escrow_addr),
+            usdc_address=Web3.to_checksum_address(
+                os.environ.get("BASE_USDC_CONTRACT", "0x036CbD53842c5426634e7929541eC2318f3dCF7e")
+            ),
+        )
+
+        escrow_id_bytes = bytes.fromhex(escrow_id_hex.removeprefix("0x"))
+        if len(escrow_id_bytes) != 32:
+            return {"ok": False, "stage": "input", "error": "escrow_id must be 32 bytes (64 hex chars)"}
+
+        state = get_escrow(cfg, escrow_id_bytes)
+        if state is None:
+            return {"ok": False, "stage": "lookup", "error": "Escrow not found on-chain"}
+
+        # Compare on-chain hashlock against expected cert address
+        expected_hashlock = content_address_to_hashlock(expected_cert_address)
+        hashlock_match = state.hashlock == expected_hashlock
+
+        return {
+            "ok": hashlock_match,
+            "stage": "ok" if hashlock_match else "fail",
+            "escrow": {
+                "buyer": state.buyer,
+                "seller": state.seller,
+                "amount_usdc": state.amount / 1e6,
+                "amount_base_units": state.amount,
+                "hashlock_hex": state.hashlock.hex(),
+                "deadline": state.deadline,
+                "deadline_iso": datetime.fromtimestamp(state.deadline, timezone.utc).isoformat(),
+                "released": state.released,
+                "refunded": state.refunded,
+                "status": state.status,
+            },
+            "hashlock_check": {
+                "ok": hashlock_match,
+                "expected_address": expected_cert_address,
+                "expected_hashlock_hex": expected_hashlock.hex(),
+                "on_chain_hashlock_hex": state.hashlock.hex(),
+            },
+            "explorer_url": f"https://sepolia.basescan.org/address/{cfg.escrow_address}",
+        }
+    except Exception as e:
+        return {"ok": False, "stage": "rpc", "error": str(e), "type": type(e).__name__}
+
+
 def _emit_audit_cert_impl(
     audited_cert_address: str,
     audit_results: dict,
@@ -434,6 +538,13 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                 arguments["cert_json"],
                 expected_address=arguments.get("expected_address"),
                 mirror_url=arguments.get("mirror_url"),
+            )
+        elif name == "verify_base_escrow":
+            result = _verify_base_escrow_impl(
+                arguments["escrow_id_hex"],
+                arguments["expected_cert_address"],
+                rpc_url=arguments.get("rpc_url"),
+                contract_address=arguments.get("contract_address"),
             )
         elif name == "emit_audit_cert":
             result = _emit_audit_cert_impl(

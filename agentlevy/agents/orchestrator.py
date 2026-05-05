@@ -206,7 +206,14 @@ def sanctions_agent_screen(
     """
     aws_url = os.environ.get("AWS_SANCTIONS_AGENT_URL", "").strip()
     if aws_url:
-        return _sanctions_via_aws(aws_url, names, sanctions_list), "aws-lambda-bedrock"
+        try:
+            return _sanctions_via_aws(aws_url, names, sanctions_list), "aws-lambda-bedrock"
+        except AWSAgentError as e:
+            # Graceful fallback: AWS is the preferred path, but if it errors
+            # (Bedrock quota, use-case form not submitted yet, network),
+            # fall back to local Anthropic so the demo always runs.
+            print(f"      ⚠ AWS Lambda failed: {e}")
+            print(f"      ↳ falling back to local Anthropic for this run")
 
     user = (
         f"Screen each of these names against the sanctions list. "
@@ -227,7 +234,11 @@ def sanctions_agent_screen(
 def _sanctions_via_aws(
     url: str, names: list[str], sanctions_list: dict
 ) -> SanctionsScreenResult:
-    """Call the AWS Lambda sanctions agent over HTTPS."""
+    """Call the AWS Lambda sanctions agent over HTTPS.
+
+    Raises ``AWSAgentError`` on any failure (network, HTTP, Lambda-side
+    Bedrock errors). The caller decides whether to fall back to local.
+    """
     import httpx
 
     payload = {
@@ -235,17 +246,30 @@ def _sanctions_via_aws(
         "sanctions_list_version": sanctions_list.get("list_version", "OFAC-SDN-DEFAULT"),
         "sanctions_list": sanctions_list,
     }
-    r = httpx.post(url, json=payload, timeout=60.0)
-    r.raise_for_status()
+    try:
+        r = httpx.post(url, json=payload, timeout=60.0)
+    except httpx.RequestError as e:
+        raise AWSAgentError(f"network: {e}") from e
+
+    if r.status_code != 200:
+        # Lambda returns errors as 200 with a JSON body containing 'error'
+        # in our handler. Non-200 means infra-level failure (5xx, 4xx, etc.).
+        raise AWSAgentError(f"http {r.status_code}: {r.text[:200]}")
+
     data = r.json()
-    # Drop runtime metadata fields the schema doesn't carry; keep them
-    # as side data the caller can read off the response if interested.
+    if "error" in data:
+        raise AWSAgentError(
+            f"Lambda → Bedrock: [{data.get('type', 'Error')}] {data['error']}"
+        )
+
     runtime_meta = {k: data.pop(k, None) for k in ("model", "agent_runtime", "request_id")}
     result = SanctionsScreenResult.model_validate(data)
-    # Stash the runtime metadata on the orchestrator's banner output via
-    # a module-level cache (printed once per run).
     _LAST_AWS_META.update(runtime_meta)
     return result
+
+
+class AWSAgentError(RuntimeError):
+    """Raised when the AWS Lambda sanctions agent fails for any reason."""
 
 
 # Cache for the most recent AWS Lambda metadata, displayed in Phase 4 banner.
