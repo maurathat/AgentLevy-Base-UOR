@@ -2,6 +2,8 @@
 
 > **EasyA Consensus 2026 Hackathon — Track 2: x402 on Base for Agents.** Two AI agents negotiate and execute a verifiable KYC compliance task, pay each other via **x402 on Base**, settle through a smart-contract escrow on cert-hash match, and anchor every cert to **Hedera HCS** for tamper-evident timestamping. Content addresses are **byte-identical to UOR Foundation's canonical reference**. Verifiable from public keys alone, across two independent ledgers.
 
+> 🌐 **Live demo:** [web-2a8dm2ehp-maurathats-projects.vercel.app](https://web-2a8dm2ehp-maurathats-projects.vercel.app) — interactive walkthrough of the cert chain forming, sanctions hits, and Hedera anchors with real on-chain verification links.
+
 This is a **sibling implementation** to [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) — same protocol primitives, different settlement chain. Demonstrates the chain-neutrality of the underlying VTEAI standard via UOR-ADDR-1 chain-binding adapters.
 
 | Layer | This repo | Sibling (AgentLevy-XRPL-UOR) |
