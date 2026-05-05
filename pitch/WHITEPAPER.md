@@ -567,7 +567,65 @@ The TAM for AI model licensing alone is the full size of the AI inference econom
 
 Adjacent markets the same pattern unlocks: portable KYC attestations, tranched M&A escrow, title NFTs, patient-controlled consent NFTs, carbon credit verification, SLA-enforced subscriptions, supply chain provenance.
 
-### 8.5 Enterprise pilots (the wedge)
+### 8.5 Phase 4: AgentCore Memory + UOR cert chain composition
+
+AWS Bedrock AgentCore (released 2025) provides production primitives for AI agents: a managed runtime, persistent memory (short-term, long-term, semantic, episodic, procedural), agent identity, tool gateways, browser automation, and code interpretation. It composes naturally with UOR cert chains in a way that strengthens both.
+
+**The two operate at different layers:**
+
+| Concern | AgentCore Memory | UOR Cert Chain |
+|---|---|---|
+| **What it stores** | Agent's *internal state* for decision-making | Agent's *external claims about work it did* |
+| **Mutability** | Mutable — agent updates over time | Immutable — every cert is permanent |
+| **Trust model** | Vendor-trusted (AWS holds the data) | Math-verifiable (signed, content-addressed) |
+| **Survival** | Lives as long as the AWS account | Outlives the agent, the vendor, the cloud |
+| **Cross-vendor portability** | AWS-bound | Any UOR-aware tool resolves it |
+
+**AgentCore Memory is intra-agent state. UOR cert chains are inter-agent, inter-vendor, inter-time state.** They solve different problems, and the composition is genuinely powerful:
+
+```
+[AgentCore Memory] ←→ [Agent reasons over time]
+                              ↓
+                          [Decision]
+                              ↓
+                  [UOR-signed DerivationCert]
+                              ↓
+                    [Hedera HCS audit anchor]
+                              ↓
+       [Public audit trail outlives the agent's runtime]
+```
+
+For regulated agent commerce — KYC, M&A, healthcare, AI inference provenance — this composition is the right architecture. AgentCore alone gives you a smart agent that's vendor-locked for audit. UOR alone gives you an audit trail but no working-memory primitives. Together: smart + verifiable + portable.
+
+**Reference implementation roadmap.** This project's hackathon submission already includes a **stateless** sanctions agent on AWS Lambda + Bedrock (see `aws/sanctions_agent/`). Phase 4 upgrades the sanctions agent into a stateful AgentCore-hosted variant — for example, a cross-day fraud-pattern detector that learns from prior screenings via AgentCore Long-Term Memory and emits a UOR-signed cert at every decision boundary. The handler shape, request format, and orchestrator integration stay identical between the stateless and AgentCore variants; only the runtime changes.
+
+**Pitch line earned by Phase 4**: *"AgentCore makes the agent capable. UOR cert chains make its work verifiable. AgentLevy is the reference implementation of how these compose for regulated agent commerce."*
+
+### 8.6 Phase 5: KIRO as the human-auditor frontend
+
+AWS KIRO (Amazon's AI-native IDE, released 2025) is positioned as a developer environment with autonomous coding agents. The natural composition with AgentLevy is **not** as a production-agent runtime — that's what AgentCore is for — but as the **human-auditor frontend** for cert chains.
+
+**The audit story.** A regulator, internal auditor, or counterparty's due-diligence team installs an **AgentLevy MCP server** (Phase 5 deliverable) in KIRO. The MCP server exposes the protocol's verification primitives as tools the IDE's agent can call. The auditor types `"audit cert sha256:eb22…4667"` and KIRO walks them through:
+
+1. Resolve content_address → fetch canonical bytes → recompute SHA-256 → confirm match
+2. Verify Ed25519 signatures against the seller_pubkey claimed on the cert
+3. Walk `subcontract_cert_addresses` to expand the full chain (parent → sanctions cert → screened owner names)
+4. Query Hedera Mirror Node REST → confirm consensus timestamps + sequence numbers
+5. Read the deployed Base escrow contract → confirm hashlock pre-commitment + release events
+6. Emit an audit-summary `DerivationCert` *signed by the auditor's keypair* — the audit itself becomes a verifiable artifact in the cert chain
+
+**The audit becomes another link in the cert chain. Everything composes.**
+
+| Layer | AgentCore | KIRO |
+|---|---|---|
+| Runs where | Production runtime (managed, AWS-cloud) | Developer/auditor IDE (local, on a human's laptop) |
+| Who uses it | Autonomous agents doing work | Human auditors reviewing work |
+| Produces | DerivationCert for the work performed | DerivationCert for the audit performed |
+| Trust model | Vendor-trusted (AWS) | Operator-trusted (the auditor's own machine) |
+
+The full Phase 4+5 stack: **AgentCore makes agents capable. UOR cert chains make their work verifiable. KIRO + AgentLevy MCP makes the verification accessible to humans.** Three layers, one composable verification story.
+
+### 8.7 Enterprise pilots (the wedge)
 
 - Mid-market regional banks (KYC + AML)
 - KYC compliance vendors (channel/whitelabel)
@@ -575,7 +633,7 @@ Adjacent markets the same pattern unlocks: portable KYC attestations, tranched M
 - M&A escrow + transaction support (Year 2)
 - AI governance + inference provenance (Year 3+)
 
-### 8.6 Productization → Kessai
+### 8.8 Productization → Kessai
 
 The open-source reference protocol is AgentLevy. The commercial layer is **Kessai** — visualizer UI for cert chains, enterprise SDKs (Python + TypeScript), regulatory-evidence packs, channel licensing for compliance vendors.
 

@@ -1,0 +1,4 @@
+# Lambda Python deps. boto3 is bundled with the Lambda runtime so we
+# don't strictly need it pinned, but pinning keeps local sam-build
+# behavior consistent.
+boto3>=1.40

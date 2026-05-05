@@ -80,6 +80,58 @@ export default function ArchitecturePage() {
         </div>
       </section>
 
+      {/* AgentCore + UOR composition (Phase 4) */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="eyebrow text-karakurenai">Phase 4 · AgentCore + UOR composition</div>
+        <h2 className="mt-4 font-display font-semibold text-3xl md:text-4xl leading-tight">
+          AgentCore makes the agent capable.
+          <br />
+          <span className="text-karakurenai">UOR cert chains make its work verifiable.</span>
+        </h2>
+        <p className="mt-6 max-w-3xl text-washi/80 leading-relaxed">
+          AWS Bedrock AgentCore Memory gives an agent persistent state across
+          invocations — vendor-trusted, AWS-cloud-bound, mutable. The UOR cert
+          chain gives every decision public-key-verifiable provenance —
+          immutable, vendor-independent, anchored on Hedera. They operate at
+          different layers and compose naturally:
+        </p>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border border-washi/15 p-6">
+            <div className="eyebrow text-washi/60">Intra-agent state</div>
+            <div className="font-display text-xl font-semibold mt-2">AgentCore Memory</div>
+            <ul className="mt-4 text-sm space-y-1.5 text-washi/80">
+              <li>· Mutable: agent updates over time</li>
+              <li>· Vendor-trusted (AWS holds the data)</li>
+              <li>· Bound to the agent&apos;s runtime</li>
+              <li>· Lives as long as the AWS account</li>
+            </ul>
+          </div>
+          <div className="border border-karakurenai/40 p-6">
+            <div className="eyebrow text-karakurenai">Inter-agent, inter-vendor, inter-time</div>
+            <div className="font-display text-xl font-semibold mt-2">UOR cert chain</div>
+            <ul className="mt-4 text-sm space-y-1.5 text-washi/80">
+              <li>· Immutable: every cert is permanent</li>
+              <li>· Math-verifiable (signed, content-addressed)</li>
+              <li>· Anchored on Hedera HCS for tamper-evidence</li>
+              <li>· Outlives the agent, the vendor, the cloud</li>
+            </ul>
+          </div>
+        </div>
+        <p className="mt-8 max-w-3xl text-washi/70 text-sm leading-relaxed">
+          This project ships a stateless sanctions agent on{" "}
+          <span className="text-karakurenai font-medium">
+            AWS Lambda + Bedrock
+          </span>{" "}
+          today (see <span className="font-mono text-xs">aws/sanctions_agent/</span>).
+          Phase 4 upgrades it to a stateful AgentCore-hosted variant — the
+          handler shape and orchestrator integration stay identical; only the
+          runtime changes. Phase 5 adds an{" "}
+          <span className="text-karakurenai font-medium">AgentLevy MCP server</span>{" "}
+          for KIRO so human auditors can walk through cert chains in their IDE
+          and emit signed audit-summary certs.
+        </p>
+      </section>
+
       <section className="mx-auto max-w-6xl px-6 py-20">
         <div className="eyebrow">Read the deep-dive</div>
         <h2 className="mt-4 font-display font-semibold text-3xl">Whitepaper + standards drafts</h2>

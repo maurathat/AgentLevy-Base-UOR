@@ -342,8 +342,15 @@ function PhaseDetail({ phase, done }: { phase: number; done: boolean }) {
     case 4:
       return (
         <div>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono bg-karakurenai/15 text-karakurenai rounded-sm border border-karakurenai/30">
+              <span className="w-1.5 h-1.5 bg-karakurenai rounded-full animate-pulse" />
+              AWS Lambda · Bedrock (Claude)
+            </span>
+            <span className="text-washi/60 text-xs">runtime: aws-lambda-bedrock</span>
+          </div>
           <div className="text-washi/70 text-sm mb-3">
-            Sanctions agent · LLM-driven screen against{" "}
+            Sanctions agent runs as a serverless Lambda on AWS · LLM screen via Bedrock against{" "}
             <span className="text-karakurenai font-mono">{DEMO.sanctionsListVersion}</span>
           </div>
           <div className="space-y-1 font-mono text-sm">

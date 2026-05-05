@@ -186,8 +186,28 @@ def sanctions_agent_screen(
     llm: LLMClient,
     names: list[str],
     sanctions_list: dict,
-) -> SanctionsScreenResult:
-    """Sanctions agent's LLM call: screen names against the (synthetic) list."""
+) -> tuple[SanctionsScreenResult, str]:
+    """Sanctions agent: returns (result, runtime_label).
+
+    Two runtime modes:
+
+      - **AWS Lambda + Bedrock** if ``AWS_SANCTIONS_AGENT_URL`` is set
+        in .env. The sanctions agent runs as a serverless Lambda
+        function on AWS (see aws/sanctions_agent/), calls Bedrock
+        Claude for the LLM screen, and returns a structured
+        ``SanctionsScreenResult`` over HTTPS. The cert chain authority
+        (signing, Hedera anchoring) stays on the orchestrator.
+
+      - **Local Anthropic via LLM stack** otherwise — uses the same
+        client + cache that compliance uses.
+
+    The split lets us demo "agent on AWS, cert chain on the orchestrator"
+    without the Lambda holding any keys or signing authority.
+    """
+    aws_url = os.environ.get("AWS_SANCTIONS_AGENT_URL", "").strip()
+    if aws_url:
+        return _sanctions_via_aws(aws_url, names, sanctions_list), "aws-lambda-bedrock"
+
     user = (
         f"Screen each of these names against the sanctions list. "
         f"Use 'sanctions_list_version' = {sanctions_list['list_version']!r}. "
@@ -196,11 +216,40 @@ def sanctions_agent_screen(
         f"Names: {names}\n\n"
         f"Sanctions list (synthetic):\n{json.dumps(sanctions_list, indent=2)}"
     )
-    return llm.complete_structured(
+    result = llm.complete_structured(
         system=SANCTIONS_SYSTEM_PROMPT,
         user=user,
         schema=SanctionsScreenResult,
     )
+    return result, "local-anthropic"
+
+
+def _sanctions_via_aws(
+    url: str, names: list[str], sanctions_list: dict
+) -> SanctionsScreenResult:
+    """Call the AWS Lambda sanctions agent over HTTPS."""
+    import httpx
+
+    payload = {
+        "names": names,
+        "sanctions_list_version": sanctions_list.get("list_version", "OFAC-SDN-DEFAULT"),
+        "sanctions_list": sanctions_list,
+    }
+    r = httpx.post(url, json=payload, timeout=60.0)
+    r.raise_for_status()
+    data = r.json()
+    # Drop runtime metadata fields the schema doesn't carry; keep them
+    # as side data the caller can read off the response if interested.
+    runtime_meta = {k: data.pop(k, None) for k in ("model", "agent_runtime", "request_id")}
+    result = SanctionsScreenResult.model_validate(data)
+    # Stash the runtime metadata on the orchestrator's banner output via
+    # a module-level cache (printed once per run).
+    _LAST_AWS_META.update(runtime_meta)
+    return result
+
+
+# Cache for the most recent AWS Lambda metadata, displayed in Phase 4 banner.
+_LAST_AWS_META: dict[str, str | None] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -283,9 +332,14 @@ def main() -> None:
     # --- 4. Subcontract sanctions screening ---
     banner("Phase 4 · Compliance subcontracts sanctions screening")
     owner_names = [o.name for o in extraction.owners]
-    sanctions_result = sanctions_agent_screen(
+    sanctions_result, sanctions_runtime = sanctions_agent_screen(
         llm=llm, names=owner_names, sanctions_list=sanctions_list,
     )
+    line("Agent runtime", sanctions_runtime)
+    if _LAST_AWS_META.get("model"):
+        line("Bedrock model", _LAST_AWS_META["model"])
+    if _LAST_AWS_META.get("request_id"):
+        line("Lambda request id", _LAST_AWS_META["request_id"])
     sanctions_output_addr = "sha256:" + __import__("hashlib").sha256(
         to_canonical_bytes(sanctions_result.model_dump(mode="json"))
     ).hexdigest()

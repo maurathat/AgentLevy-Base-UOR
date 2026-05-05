@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  AgentLevy sanctions agent on AWS — Lambda + API Gateway + Bedrock.
+  Track 2 + agentic-track integration for EasyA Consensus 2026.
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+    Runtime: python3.13
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        BEDROCK_MODEL_ID: !Ref BedrockModelId
+        BEDROCK_REGION: !Ref AWS::Region
+
+Parameters:
+  BedrockModelId:
+    Type: String
+    Default: us.anthropic.claude-3-5-sonnet-20241022-v2:0
+    Description: >
+      Bedrock model identifier for the LLM screen.
+      Default uses the Claude 3.5 Sonnet inference profile (us-east-1).
+
+Resources:
+  SanctionsAgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: agentlevy-sanctions-agent
+      CodeUri: .
+      Handler: handler.lambda_handler
+      Description: >
+        Sanctions screening agent: receives names, calls Bedrock Claude
+        for the LLM screen, returns a structured SanctionsScreenResult.
+        Stateless + key-free; cert chain authority stays with the
+        orchestrator.
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: "*"
+      Events:
+        ScreenApi:
+          Type: HttpApi
+          Properties:
+            Path: /screen
+            Method: post
+            ApiId: !Ref SanctionsAgentApi
+
+  SanctionsAgentApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "Content-Type"
+        AllowMethods:
+          - POST
+          - OPTIONS
+
+Outputs:
+  SanctionsAgentUrl:
+    Description: HTTPS endpoint for the sanctions agent. Set this as AWS_SANCTIONS_AGENT_URL in .env.
+    Value: !Sub "https://${SanctionsAgentApi}.execute-api.${AWS::Region}.amazonaws.com/screen"
+
+  FunctionName:
+    Description: Lambda function name (for CloudWatch logs lookup)
+    Value: !Ref SanctionsAgentFunction
+
+  Region:
+    Description: Deployment region
+    Value: !Ref AWS::Region
