@@ -27,7 +27,7 @@
 *The open-source reference protocol for verifiable agent commerce.*
 
 — Consensus EasyA · May 5–7, 2026
-— github.com/maurathat/AgentLevy-XRPL-UOR
+— github.com/maurathat/AgentLevy-Base-UOR
 — A working demo, with code.
 
 ---
@@ -169,7 +169,7 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 2. ✓ **Every content address resolves** — recompute SHA-256 over canonical bytes, match against the reference.
 3. ✓ **Every back-reference resolves** — task_spec_address, input_addresses, subcontract_cert_addresses all point at real, verifiable objects.
 4. ✓ **Every cert was witnessed by Hedera** — Mirror Node REST returns the message body matching the cert's content_address, plus the consensus timestamp.
-5. ✓ **The escrow released against the final cert hash** — XRPL transaction history shows the escrow was funded with hashlock X and released after submission of cert X.
+5. ✓ **The escrow released against the final cert hash** — Base Sepolia transaction history shows the deployed `HashlockEscrow` contract was funded with hashlock X and released to the seller after submission of cert X. [`0x5A23958A…6ef3`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)
 
 **Math, not trust. No vendor needs to still exist. No agent needs to still be active. The audit verifies in 2046 the same way it verifies today.**
 
@@ -181,14 +181,18 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 
 ### 1. Smart-contract risk → minimal verifier surface
 
-Most onchain escrow contracts run thousands of lines of Solidity, with arbitrary call patterns and re-entrancy attack surface. AgentLevy uses **XLS-100 SmartEscrow** with a deliberately minimal `FinishFunction`:
+Most onchain escrow contracts run thousands of lines of Solidity, with arbitrary call patterns and re-entrancy attack surface. **AgentLevy's `HashlockEscrow` on Base Sepolia is ~100 lines of Solidity** — single conditional release rule:
 
-- ~10 lines of WASM logic: *compute hash of submitted cert, compare to hashlock committed at escrow creation, release iff match*
-- **Deterministic by construction** — no oracles, no time-dependent branches, no external calls
+```solidity
+require(sha256(certPayload) == e.hashlock, "cert mismatch");
+e.released = true;
+require(token.transfer(e.seller, e.amount), "transfer failed");
+```
+
+- **One verification check** — sha256 of the submitted cert payload must match the hashlock committed at escrow creation. That's it. No oracle, no time-dependent branches, no external calls beyond the standard ERC-20 USDC transfer.
 - **Auditable in a single afternoon** — not a week of formal verification
-- **Hashlock pre-commitment** — the buyer locks in the expected output at escrow funding; the seller cannot retroactively renegotiate
-
-XRPL Smart Escrow is also natively currency-aware (RLUSD, XRP) without a custom token contract — one less surface to audit.
+- **Hashlock pre-commitment** — the buyer locks in the expected cryptographic outcome at escrow funding; the seller cannot retroactively renegotiate
+- **EIP-3009 USDC native** — no custom token contract; reuses Circle's audited USDC implementation
 
 ### 2. LLM negotiation risk → bounded, schema-locked, cache-replayable
 
@@ -204,7 +208,7 @@ LLMs are non-deterministic, prompt-injectable, and prone to over-spending tokens
 ### Honest acknowledgments
 
 - LLMs can still fabricate data *within the schema*. The cert chain proves the work happened, not that the inputs were correctly interpreted.
-- WASM `FinishFunction` is new (XLS-100 activated Feb 2026); no production-scale audit history yet. Pilots go through a top-tier security firm before mainnet.
+- Solidity `HashlockEscrow` is custom (deployed live to Base Sepolia for this submission); no production audit yet. Pilots will go through a top-tier security firm before any mainnet deployment with real funds.
 
 ---
 
@@ -237,7 +241,7 @@ The whole point of UOR is that the same content-addressing primitives compose ac
 
 Standards consolidate fast once a category coalesces. Today's specs are published drafts; tomorrow's specs are de-facto requirements. **The protocol-author position means competitors who eventually want to be standards-aligned will have to implement specs we wrote.** The reference implementation is in our repo.
 
-**Cross-validated:** AgentLevy's content addresses are byte-identical to UOR Foundation's canonical reference. Not "interoperable" — *byte-identical*. Live cross-checked May 3, 2026 against `mcp.uor.foundation/encode_address`. See [`docs/UOR_PASSPORT_VERIFIED.md`](https://github.com/maurathat/AgentLevy-XRPL-UOR/blob/main/docs/UOR_PASSPORT_VERIFIED.md).
+**Cross-validated:** AgentLevy's content addresses are byte-identical to UOR Foundation's canonical reference. Not "interoperable" — *byte-identical*. Live cross-checked May 3, 2026 against `mcp.uor.foundation/encode_address`. See [`docs/UOR_PASSPORT_VERIFIED.md`](https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/docs/UOR_PASSPORT_VERIFIED.md).
 
 ---
 
@@ -283,7 +287,7 @@ Standards consolidate fast once a category coalesces. Today's specs are publishe
 
 ### Multi-chain via UOR-ADDR-1 adapters
 
-Base ships first in this hackathon submission. The sibling implementation [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) targets XRPL XLS-100 SmartEscrow + RLUSD — **same protocol primitives, different settlement chain**. UOR-ADDR-1's chain-binding adapter pattern means any chain supporting a hashlock-conditional release can be added without changing the protocol layer: Hedera EVM, Solana, Sui — each gets an adapter; agents stay chain-agnostic.
+Base ships first in this hackathon submission. A sibling implementation `AgentLevy-XRPL-UOR` (separate enterprise codebase) targets XRPL XLS-100 SmartEscrow + RLUSD with **the same protocol primitives** — only the settlement adapter differs. UOR-ADDR-1's chain-binding adapter pattern means any chain supporting a hashlock-conditional release can be added without changing the protocol layer: Hedera EVM, Solana, Sui — each gets an adapter; agents stay chain-agnostic.
 
 ### Phase 4 (next): AgentCore Memory upgrade for stateful agents
 
@@ -325,14 +329,14 @@ The open-source reference protocol is AgentLevy. The commercial layer is Kessai 
 
 **Try it · Read the code · Help shape the standards:**
 
-- 📦 GitHub: github.com/maurathat/AgentLevy-XRPL-UOR
+- 📦 GitHub: github.com/maurathat/AgentLevy-Base-UOR
 - 🌐 Standards: VTEAI ERC draft + UOR-ADDR-1 community proposal
 - 💬 Pitch on file: ask any judge or booth visitor; we love a hard question
-- 🤝 Hiring: 2 senior engineers (Python SDK + XRPL/Hedera settlement) — pre-seed open
+- 🤝 Hiring: 2 senior engineers (Python SDK + multi-chain settlement: Base, Hedera, XRPL) — pre-seed open
 
 — Maura Clark · maurathat
 — [contact info]
 
 ---
 
-*AgentLevy v2 (XRPL × PRISM × Hedera). Brand visuals + ecosystem logos hosted at github.com/maurathat/kessai-pitch-assets. Apache License 2.0.*
+*AgentLevy v2 (Base × PRISM × Hedera × AWS × KIRO). Brand visuals + ecosystem logos hosted at github.com/maurathat/kessai-pitch-assets. Apache License 2.0.*
