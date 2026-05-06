@@ -2,7 +2,7 @@
 
 > **EasyA Consensus 2026 Hackathon — Track 2: x402 on Base for Agents.** Verifiable agent-commerce protocol. Two AI agents negotiate and execute a KYC compliance task, settle on Base via a hashlock USDC escrow, and anchor every cert to Hedera Consensus Service for tamper-evident timestamping. The audit trail is verifiable from public keys alone, across two independent ledgers, with no trusted intermediary.
 
-🌐 **Live website:** *(paste current Vercel URL after submission)*
+🌐 **Live website:** [https://agentlevy-maurathats-projects.vercel.app](https://agentlevy-maurathats-projects.vercel.app)
 📦 **Repo:** https://github.com/maurathat/AgentLevy-Base-UOR
 🔍 **Live escrow contract** (Base Sepolia): [`0x5A23958A…6ef3`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)
 📜 **Live HCS audit topic** (Hedera Testnet): [`0.0.8856047`](https://hashscan.io/testnet/topic/0.0.8856047)
