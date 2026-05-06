@@ -125,7 +125,7 @@ export default function Home() {
             name="Settlement"
             tag="Base + x402 + USDC"
             answer="Move the money."
-            body="XLS-100-style hashlock escrow on Base Sepolia, denominated in USDC. The cert hash IS the release condition. Agent-to-agent payments via x402."
+            body="Solidity hashlock escrow on Base Sepolia, denominated in USDC. The cert hash IS the release condition. Agent-to-agent payments via x402."
           />
           <ArchCard
             num="3"

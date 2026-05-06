@@ -46,9 +46,9 @@ export default function ArchitecturePage() {
                 <span className="font-medium">No oracle. No off-chain settlement.</span>
               </p>
               <ul className="mt-4 space-y-1 text-xs font-mono text-sumi/70">
-                <li>· XLS-100-style hashlock escrow</li>
+                <li>· Solidity HashlockEscrow (~100 LoC)</li>
                 <li>· USDC (EIP-3009 transferWithAuthorization)</li>
-                <li>· ~10 LoC of Solidity verification</li>
+                <li>· One sha256 require() = release condition</li>
                 <li>· Composable with x402 payment flows</li>
               </ul>
             </div>
