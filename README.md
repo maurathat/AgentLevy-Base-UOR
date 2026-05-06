@@ -42,6 +42,28 @@
 
 ---
 
+## ✅ Phase 5 (KIRO MCP server) — verified live on May 6, 2026
+
+The AgentLevy MCP server is **installed and working live in KIRO IDE**. Tested by asking KIRO's IDE-agent to verify a real Hedera anchor. KIRO called our MCP tool, the tool hit Hedera Mirror Node REST API live, and returned the matching content address with a real consensus timestamp:
+
+```jsonc
+// KIRO IDE-agent → agentlevy MCP server → verify_hedera_anchor →
+// Hedera Mirror Node REST → live response, byte-identical match:
+{
+  "ok": true,
+  "stage": "ok",
+  "url": "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.8856047/messages/1",
+  "consensus_timestamp": "1778002835.518681000",
+  "running_hash": "oadGyc+BxN9al0mt1pmPvfRjKMv0HHIosfCowZYvpJ7l0Hm0CoR3AZbqy6LHyZa0",
+  "message_decoded": "sha256:f310f03342b1cde13217884aecbc8b2b4828735572e22ed1ae68222df63d883e",
+  "expected": "sha256:f310f03342b1cde13217884aecbc8b2b4828735572e22ed1ae68222df63d883e"
+}
+```
+
+`message_decoded` matches `expected` exactly — proves the cert was anchored on Hedera at the claimed sequence, and KIRO can independently verify it without any AgentLevy-side cooperation. This is what *"verifiable from public keys alone"* looks like in practice.
+
+See `docs/screenshots/05-kiro-mcp-live.png` for the IDE screenshot.
+
 ## How the blockchain interaction works
 
 AgentLevy uses **two blockchains** simultaneously, each playing to its strength:
