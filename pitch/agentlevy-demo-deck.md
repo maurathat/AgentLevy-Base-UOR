@@ -71,18 +71,19 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ## SLIDE 4 — What we built
 
-**AgentLevy is a protocol-layer demo where two AI agents negotiate and execute a KYC compliance task, sign each step with content-addressed derivation certificates, and settle on XRPL — producing an audit trail verifiable from public keys alone, across two independent ledgers.**
+**AgentLevy is a protocol-layer demo where two AI agents negotiate and execute a KYC compliance task, sign each step with content-addressed derivation certificates, settle on Base via a hashlock USDC escrow, and anchor every cert to Hedera Consensus Service — producing an audit trail verifiable from public keys alone, across two independent ledgers, with no trusted intermediary.**
 
-| Component | What it does | Open-source? |
+| Component | What it does | Status |
 |---|---|---|
-| **TaskSpec** | Buyer + seller dual-signed work contract | ✓ Apache 2.0 |
-| **DerivationCert** | Seller's signed attestation of work performed | ✓ Apache 2.0 |
-| **PRISM ring algebra** | UOR Foundation content addressing (vendored) | ✓ MIT (UOR Foundation) |
-| **XRPL XLS-100 SmartEscrow** | Conditional settlement on cert hash | ✓ XRPL community |
-| **Hedera HCS audit anchor** | Tamper-evident cert timestamping | ✓ Hedera/Hiero |
+| **TaskSpec + DerivationCert** | Dual-signed work contract + signed work delivery (UOR-Passport content-addressed) | ✅ Live, 128 tests passing |
+| **PRISM ring algebra** | UOR Foundation content addressing (vendored, MIT) | ✅ Byte-identical to mcp.uor.foundation |
+| **Hashlock Solidity escrow on Base** | Conditional release on `sha256(cert) == hashlock` | ✅ [Deployed Sepolia](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3) |
+| **AWS Lambda + Bedrock (Claude Haiku 4.5)** | Sanctions screening agent — stateless, key-free, scales to zero | ✅ Live at `1q4dt1zune.execute-api.us-east-1.amazonaws.com/screen` |
+| **Hedera HCS audit anchor** | Tamper-evident cert timestamping (independent witness) | ✅ Live topic [`0.0.8856047`](https://hashscan.io/testnet/topic/0.0.8856047) |
+| **AgentLevy MCP server in KIRO** | Human-auditor frontend — 5 verification tools in your IDE | ✅ Verified live in KIRO IDE |
 | **VTEAI + UOR-ADDR-1** | Standards we authored | ✓ CC0 / community |
 
-**The whole stack is open. The whole stack is reproducible. The whole stack is real on testnet today.**
+**The whole stack is open, reproducible, and real on testnet today. Five live, verifiable artifacts judges can independently re-check.**
 
 ---
 
@@ -90,15 +91,16 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ![A real UOR Module Certificate in the wild — Kessai certs follow the same shape, byte-for-byte](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/hologram-cert.png)
 
-**Three agents. One KYC task. Five signed artifacts. Two chains.**
+**Three agents. One KYC task. Five signed artifacts. Three runtimes. Two chains.**
 
-1. **Buyer agent** — drafts a TaskSpec for beneficial-ownership verification, signs it, escrows RLUSD on XRPL.
-2. **Compliance agent** — accepts the spec, reads a synthetic corporate disclosure, extracts beneficial owners, **subcontracts** sanctions screening to a third agent.
-3. **Sanctions agent** — screens each name against a synthetic sanctions list, signs a `DerivationCert` with the result.
-4. **Compliance agent** — assembles a parent `DerivationCert` referencing the sanctions cert by content address, signs it.
-5. **All certs** — anchored to a Hedera HCS topic for tamper-evident timestamping. Final cert hash submitted to the XRPL escrow's WASM `FinishFunction`. Escrow releases.
+1. **Buyer agent** (local Python) — drafts a TaskSpec for beneficial-ownership verification, signs it, escrows USDC on Base via the deployed `HashlockEscrow` contract.
+2. **Compliance agent** (local Python + Anthropic Claude Haiku 4.5) — accepts the spec, reads a synthetic corporate disclosure, extracts beneficial owners via schema-locked LLM call, **subcontracts** sanctions screening over HTTPS to a third agent on AWS.
+3. **Sanctions agent** (**AWS Lambda + Bedrock**) — runs serverless on AWS, calls Claude Haiku 4.5 via Bedrock InvokeModel for the LLM screen against a synthetic OFAC list, returns a structured `SanctionsScreenResult`.
+4. **Compliance agent** — receives the result, wraps it in a `DerivationCert` referencing the sanctions cert by content address, signs it.
+5. **All certs** — anchored to a Hedera HCS topic for tamper-evident timestamping. Final cert hash submitted to the Base escrow contract → `require(sha256(cert) == hashlock)` matches → USDC released.
+6. **Audit** — a human regulator opens KIRO IDE, the AgentLevy MCP server is loaded, the IDE-agent walks the cert chain step-by-step (verify_cert + verify_hedera_anchor + verify_base_escrow + emit_audit_cert). The audit becomes a signed cert too — recursive verifiability.
 
-**No oracles. No off-chain settlement. No trust in any agent.**
+**No oracles. No off-chain settlement. No trust in any agent. No trust in any vendor. Math.**
 
 ---
 
@@ -137,18 +139,19 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 
 ## SLIDE 7 — Two-ledger settlement
 
-**XRPL settles. Hedera anchors. Two independent witnesses.**
+**Base settles. Hedera anchors. AWS Lambda runs the agent. KIRO IDE audits. Independent witnesses, independent runtimes.**
 
-| Layer | Chain | What it provides |
+| Layer | Chain / Service | What it provides |
 |---|---|---|
-| **Settlement** | XRPL WASM Devnet | XLS-100 SmartEscrow with WASM `FinishFunction`. Buyer escrows RLUSD with a hashlock on the expected final-cert content address. Seller submits the cert; escrow verifies the hash matches; funds release. |
-| **Audit anchor** | Hedera Testnet | Every cert's content address is submitted to a Hedera Consensus Service topic ([`0.0.8856047`](https://hashscan.io/testnet/topic/0.0.8856047)) producing an authoritative consensus timestamp + sequence number. Settlement says *the money moved*; HCS says *the cert existed at this exact moment, witnessed by Hedera consensus*. |
+| **Settlement** | Base Sepolia | [`HashlockEscrow`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3) Solidity contract, ~100 LoC. Buyer escrows USDC with a hashlock on the expected final-cert content address. Anyone submits the matching cert payload; `require(sha256(certPayload) == hashlock)` releases USDC. **No oracles. No off-chain settlement.** |
+| **Audit anchor** | Hedera Testnet | Every cert's content address is submitted to HCS topic [`0.0.8856047`](https://hashscan.io/testnet/topic/0.0.8856047) producing an authoritative consensus timestamp + sequence number. Settlement says *the money moved*; HCS says *the cert existed at this exact moment, witnessed by Hedera consensus*. |
+| **Sanctions agent** | AWS Lambda + Bedrock | Stateless serverless agent calling Claude Haiku 4.5 via Bedrock InvokeModel global cross-region inference profile. Pay-per-invocation, scales to zero, key-free. |
+| **Auditor frontend** | KIRO IDE + AgentLevy MCP | Five verification tools in your IDE. `verify_cert + verify_hedera_anchor + verify_base_escrow + audit_cert_chain + emit_audit_cert`. The audit becomes a signed cert too. |
 
 *Built on:*
 
-![XRPL](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/xrpl_horizontal_white.png)
+![Base](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/xrpl_horizontal_white.png)
 ![Hedera](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/hedera_logo_white.png)
-![Ripple](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/ripple_logo.png)
 ![Anthropic](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/anthropic_logo.png)
 
 ---
@@ -237,7 +240,16 @@ Standards consolidate fast once a category coalesces. Today's specs are publishe
 
 ## SLIDE 11 — Roadmap
 
-**The protocol ships with the demo. The bigger build is partnerships, standards ratification, and the productization path.**
+**Already shipped in the hackathon submission:**
+
+- ✅ **Cert chain primitives** (TaskSpec + DerivationCert + UOR-Passport content addressing) — 128 tests passing
+- ✅ **Base settlement contract** — `HashlockEscrow` deployed on Base Sepolia at [`0x5A23958A…6ef3`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)
+- ✅ **Hedera HCS audit anchor** — live topic [`0.0.8856047`](https://hashscan.io/testnet/topic/0.0.8856047)
+- ✅ **AWS Lambda + Bedrock sanctions agent** (stateless, Phase 4 base case) — live at API Gateway endpoint
+- ✅ **AgentLevy MCP server in KIRO** (Phase 5) — verified live in IDE
+- ✅ **Live Vercel website** — landing + demo + architecture + audit pages
+
+**The bigger build going forward is partnerships, standards ratification, productization, and these next phases:**
 
 ### Standards (the moat we're authoring)
 
@@ -268,7 +280,11 @@ Standards consolidate fast once a category coalesces. Today's specs are publishe
 
 ### Multi-chain via UOR-ADDR-1 adapters
 
-XRPL ships first because XLS-100 is ready. UOR-ADDR-1's chain-binding adapter pattern means **any chain that supports a hashlock-conditional release can be added without changing the protocol layer**: Hedera EVM, Solana, Sui, Base — each gets an adapter; agents stay chain-agnostic.
+Base ships first in this hackathon submission. The sibling implementation [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) targets XRPL XLS-100 SmartEscrow + RLUSD — **same protocol primitives, different settlement chain**. UOR-ADDR-1's chain-binding adapter pattern means any chain supporting a hashlock-conditional release can be added without changing the protocol layer: Hedera EVM, Solana, Sui — each gets an adapter; agents stay chain-agnostic.
+
+### Phase 4 (next): AgentCore Memory upgrade for stateful agents
+
+Today's AWS Lambda sanctions agent is **stateless** — perfect for one-shot screening. Phase 4 upgrades it to a **stateful AgentCore-hosted variant** for cross-day fraud detection, learning patterns over time. The handler shape, request format, and orchestrator integration stay identical; only the runtime changes from Lambda to AgentCore Runtime + AgentCore Memory. **AgentCore makes the agent capable. UOR cert chains make its work verifiable. Together: regulated agent commerce, productized.**
 
 ### Verifiable agent memory + AI inference provenance
 
