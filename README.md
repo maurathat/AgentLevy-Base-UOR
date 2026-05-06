@@ -62,7 +62,9 @@ The AgentLevy MCP server is **installed and working live in KIRO IDE**. Tested b
 
 `message_decoded` matches `expected` exactly — proves the cert was anchored on Hedera at the claimed sequence, and KIRO can independently verify it without any AgentLevy-side cooperation. This is what *"verifiable from public keys alone"* looks like in practice.
 
-See `docs/screenshots/05-kiro-mcp-live.png` for the IDE screenshot.
+**Live IDE screenshot** — KIRO calling our MCP server's `verify_hedera_anchor` tool, getting back the byte-identical match from Hedera Mirror Node REST:
+
+![KIRO calling agentlevy MCP server live — verify_hedera_anchor returns ok=true with matching content address](docs/screenshots/05-kiro-mcp-live.png)
 
 ## How the blockchain interaction works
 
