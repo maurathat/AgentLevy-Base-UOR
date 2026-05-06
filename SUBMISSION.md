@@ -122,7 +122,8 @@ AgentLevy-Base-UOR/
 | Artifact | URL |
 |---|---|
 | **Live website** | [https://agentlevy-maurathats-projects.vercel.app](https://agentlevy-maurathats-projects.vercel.app) |
-| **GitHub repository** | https://github.com/maurathat/AgentLevy-Base-UOR |
+| **GitHub repository** (this submission — Base + AWS + KIRO) | https://github.com/maurathat/AgentLevy-Base-UOR |
+| **Sibling implementation** (XRPL + RLUSD — same protocol, different chain adapter) | https://github.com/maurathat/AgentLevy-XRPL-UOR |
 | **Deployed Solidity escrow** (Base Sepolia) | https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3 |
 | **Hedera HCS audit topic** (testnet) | https://hashscan.io/testnet/topic/0.0.8856047 |
 | **AWS Lambda endpoint** | `https://1q4dt1zune.execute-api.us-east-1.amazonaws.com/screen` |

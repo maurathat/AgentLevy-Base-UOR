@@ -287,7 +287,7 @@ Standards consolidate fast once a category coalesces. Today's specs are publishe
 
 ### Multi-chain via UOR-ADDR-1 adapters
 
-Base ships first in this hackathon submission. A sibling implementation `AgentLevy-XRPL-UOR` (separate enterprise codebase) targets XRPL XLS-100 SmartEscrow + RLUSD with **the same protocol primitives** — only the settlement adapter differs. UOR-ADDR-1's chain-binding adapter pattern means any chain supporting a hashlock-conditional release can be added without changing the protocol layer: Hedera EVM, Solana, Sui — each gets an adapter; agents stay chain-agnostic.
+Base ships first in this hackathon submission. The sibling implementation [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) targets XRPL XLS-100 SmartEscrow + RLUSD with **the same protocol primitives** — only the settlement adapter differs. **One protocol, two live chains**, proving UOR-ADDR-1's chain-binding adapter pattern works: any chain supporting a hashlock-conditional release can be added without changing the protocol layer (Hedera EVM, Solana, Sui — each gets an adapter; agents stay chain-agnostic).
 
 ### Phase 4 (next): AgentCore Memory upgrade for stateful agents
 
