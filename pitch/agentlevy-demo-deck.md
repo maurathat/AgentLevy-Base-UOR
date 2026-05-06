@@ -150,9 +150,12 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 
 *Built on:*
 
-![Base](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/xrpl_horizontal_white.png)
+![Base](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/base_lockup_white.png)
+![AWS](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/aws_logo_white.png)
 ![Hedera](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/hedera_logo_white.png)
+![KIRO](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/kiro_wordmark_white.png)
 ![Anthropic](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/anthropic_logo.png)
+![UOR Foundation](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/uor_foundation_logo.png)
 
 ---
 
