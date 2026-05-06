@@ -154,7 +154,7 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 ![AWS](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/aws_logo_white.png)
 ![Hedera](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/hedera_logo_white.png)
 ![KIRO](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/kiro_wordmark_white.png)
-![Anthropic](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/anthropic_logo.png)
+![Anthropic](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/anthropic_logo_white.png)
 ![UOR Foundation](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/uor_foundation_logo.png)
 
 ---
