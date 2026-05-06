@@ -2,12 +2,13 @@
 
 **Whitepaper · v1.0 · May 2026**
 
-> **AgentLevy is the open-source reference implementation of a two-standard protocol for cryptographically-verifiable agent commerce — content-addressed derivation certificates anchored across two independent ledgers (XRPL settlement + Hedera HCS audit anchor), with no trusted third party at the verify step.**
+> **AgentLevy is the open-source reference implementation of a two-standard protocol for cryptographically-verifiable agent commerce — content-addressed derivation certificates anchored across two independent ledgers (Base Sepolia settlement + Hedera HCS audit anchor), with no trusted third party at the verify step. A sibling implementation on XRPL XLS-100 SmartEscrow + RLUSD demonstrates the same protocol primitives behind a different chain adapter — *one protocol, two live chains*.**
 >
 > This whitepaper is the deep-dive companion to:
 > - **[VTEAI ERC draft](VTEAI-DRAFT.md)** — the settlement-state-machine standard
 > - **[UOR-ADDR-1 community proposal](UOR-ADDR-PROPOSAL.md)** — the chain-agnostic content-addressing standard
-> - **[Source repository](https://github.com/maurathat/AgentLevy-XRPL-UOR)** — Apache 2.0 licensed
+> - **[Source repository — Base + AWS + KIRO (this submission)](https://github.com/maurathat/AgentLevy-Base-UOR)** — Apache 2.0 licensed
+> - **[Sibling repository — XRPL + RLUSD](https://github.com/maurathat/AgentLevy-XRPL-UOR)** — same protocol, different chain adapter
 > - **[Pitch decks](kessai-funding-deck.md)** ([demo deck](agentlevy-demo-deck.md), [funding deck](kessai-funding-deck.md), [one-pager](kessai-onepager.md))
 
 ---
@@ -22,7 +23,7 @@ AgentLevy closes that gap with a small set of primitives:
 
 - **TaskSpec** — a buyer + seller dual-signed work-acceptance contract.
 - **DerivationCert** — a seller's signed attestation of work performed against a TaskSpec, with content-addressed references to inputs, outputs, and any subcontracted child certs.
-- **Two-ledger settlement** — XRPL XLS-100 SmartEscrow holds funds with a hashlock on the expected final-cert content address (releases when the hash matches); Hedera Consensus Service anchors every cert hash with an authoritative consensus timestamp.
+- **Two-ledger settlement** — a `HashlockEscrow` Solidity contract on Base Sepolia holds USDC with a hashlock on the expected final-cert content address (releases when `sha256(certPayload) == hashlock`); Hedera Consensus Service anchors every cert hash with an authoritative consensus timestamp. The same protocol runs on XRPL via XLS-100 SmartEscrow + RLUSD in the sibling implementation — UOR-ADDR-1's chain-binding adapter pattern keeps the agents and certs chain-agnostic.
 - **UOR-Passport content addresses** — every reference uses `sha256:<64hex>` derived from JCS-RFC8785 + NFC canonical bytes, byte-identical to the UOR Foundation's reference implementation.
 
 A verifier holding `(buyer_pubkey, seller_pubkey, sanctions_pubkey, the cert chain)` can independently reconstruct: every signature, every content address, every cross-reference, every consensus timestamp, every settlement event — across two independent ledgers, with no trusted intermediary.
@@ -75,8 +76,8 @@ Fields (selected):
 - `inputs` — list of content-address references (`sha256:<64hex>`) to the source documents
 - `expected_output_schema` — JSON Schema describing the output shape
 - `price_drops` — settlement amount in chain-native units
-- `currency` — `RLUSD` (default) or `XRP`; chain-aware
-- `chain` — `xrpl`
+- `currency` — `USDC` (default for Base) / `RLUSD` (XRPL sibling) / `ETH` / `XRP`; chain-aware
+- `chain` — `base` (this submission) or `xrpl` (sibling impl)
 - `buyer_pubkey`, `seller_pubkey` — Ed25519 public keys (32 raw bytes, hex-encoded)
 - `deadline` — UTC, ISO 8601
 - `signature_buyer`, `signature_seller` — detached Ed25519 signatures (64 raw bytes, hex-encoded)
@@ -105,7 +106,7 @@ Fields:
 
 ```
 TaskSpec (sha256:abc…)
-  ↓ signed by buyer + seller; escrowed on XRPL with hashlock on expected final cert
+  ↓ signed by buyer + seller; escrowed on Base (USDC) with hashlock on expected final cert
   ↓ referenced by ↓
 DerivationCert (compliance, sha256:def…)
   ↓ output_address →
@@ -119,13 +120,23 @@ Every arrow is a hash reference. Every node is signed. Every node is anchored.
 
 ### 2.2 The Two-Ledger Settlement
 
-#### XRPL — Settlement layer
+#### Base Sepolia — Settlement layer (this submission)
 
-The buyer creates an XLS-100 SmartEscrow on XRPL WASM Devnet, funded with the agreed-upon RLUSD amount. The escrow's WASM `FinishFunction` is a small piece of deterministic logic: "compare the SHA-256 of the submitted cert payload to the hashlock value committed at escrow creation; release iff match."
+The buyer creates a `HashlockEscrow` Solidity contract instance on Base Sepolia, funded with the agreed-upon **USDC** amount via Circle's `transferWithAuthorization` (EIP-3009). The contract — deployed live at [`0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3`](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3) — has exactly one release condition:
 
-The deliberate minimalism of `FinishFunction` is itself a security property: ~10 lines of WASM, no oracles, no time-dependent branches, no external calls, no re-entrancy attack surface. Auditable in an afternoon, not a week.
+```solidity
+require(sha256(certPayload) == e.hashlock, "cert mismatch");
+e.released = true;
+require(token.transfer(e.seller, e.amount), "transfer failed");
+```
 
-When the seller's final cert is submitted, the escrow verifies the hash and releases the funds. No oracle. No off-chain settlement. No human in the loop.
+The deliberate minimalism of this verifier is itself a security property: ~100 lines of Solidity total, **one** verification check, no oracles, no time-dependent branches, no external calls beyond the standard ERC-20 USDC transfer, no re-entrancy attack surface (the `released` flag is set before transfer). Auditable in an afternoon, not a week. The hashlock pre-commitment means the buyer locks in the expected cryptographic outcome at escrow funding; the seller cannot retroactively renegotiate.
+
+When the seller's final cert is submitted on-chain, the escrow verifies the hash and releases the USDC. No oracle. No off-chain settlement. No human in the loop. **Coinbase x402 + USDC + EIP-3009** make this 10 lines of verification logic instead of a custom token contract — *that's why Base + x402 was uniquely possible for this protocol*.
+
+#### XRPL — Sibling settlement adapter
+
+The same protocol primitives drive the sibling implementation [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) on XRPL WASM Devnet, where settlement uses **XLS-100 SmartEscrow** funded with **RLUSD**. The XRPL adapter's WASM `FinishFunction` is the same release rule expressed in ~10 lines of WASM instead of Solidity. UOR-ADDR-1's chain-binding adapter pattern means the buyer agent, compliance agent, and cert chain all stay chain-agnostic — only the settlement-layer module differs between the two implementations. **One protocol, two live chains.**
 
 #### Hedera HCS — Audit anchor
 
@@ -141,15 +152,39 @@ The anchor is **detached** from the cert's canonical bytes. Anchoring happens *a
 
 | Property | What it provides |
 |---|---|
-| **Independent witnesses** | If XRPL has a chain reorganization or HCS goes down, the other ledger still has the proof. Two attesters; not just one. |
-| **Settlement decoupled from audit** | XRPL says *the money moved*; Hedera says *the cert existed at exactly this moment, witnessed by separate consensus*. Audit one without trusting the other. |
-| **Two governance models** | XRPL Foundation governs one; Hedera Council (Fortune 500-heavy: Google, IBM, LG, Boeing, Standard Bank, etc.) governs the other. Regulatory acceptance varies by jurisdiction; having both means you don't have to bet. |
-| **Cross-chain redundancy** | If XRPL governance shifts, the timeline lives on Hedera. If Hedera ever Council-restructures, the money is on XRPL. Neither bet is total. |
-| **Each chain plays its strength** | HCS is built for high-throughput ordering (~$0.0001/msg); XRPL Smart Escrow is built for cheap, fast, conditional settlement. |
+| **Independent witnesses** | If the settlement chain (Base or XRPL) has a reorganization or HCS goes down, the other ledger still has the proof. Two attesters; not just one. |
+| **Settlement decoupled from audit** | The settlement chain says *the money moved*; Hedera says *the cert existed at exactly this moment, witnessed by separate consensus*. Audit one without trusting the other. |
+| **Two governance models** | Base validators / XRPL Foundation governs the settlement chain; Hedera Council (Fortune 500-heavy: Google, IBM, LG, Boeing, Standard Bank, etc.) governs the audit chain. Regulatory acceptance varies by jurisdiction; having both means you don't have to bet. |
+| **Cross-chain redundancy** | If Base reorgs, the timeline lives on Hedera. If Hedera ever Council-restructures, the money is on Base. Neither bet is total. |
+| **Each chain plays its strength** | HCS is built for high-throughput ordering (~$0.0001/msg); Base + USDC + EIP-3009 (or XRPL XLS-100 + RLUSD in the sibling) is built for cheap, fast, conditional settlement. |
 
 This is the structural property: **two independent ledgers, two independent governance models, two independent verification paths.** The audit story doesn't depend on either chain alone.
 
-### 2.4 Future: dNFT + SmartEscrow integration pattern (XRPL-specific, Phase 3)
+### 2.4 Subcontracting + auditing: AWS Lambda + KIRO MCP
+
+Two pieces of the live submission deserve their own subsections because they prove out parts of the protocol the standards alone don't specify: **how a sub-agent participates in a cert chain**, and **how a human auditor verifies one**.
+
+#### 2.4.1 AWS Lambda + Bedrock — sanctions screening as a subcontracted agent
+
+The compliance agent doesn't do sanctions screening itself; it **subcontracts** to a third agent. In the live demo, that third agent runs as an **AWS Lambda function** (Python 3.13, arm64, 512 MB) behind an API Gateway HTTPS endpoint, invoking **Bedrock — Claude Haiku 4.5** via the `global.anthropic.claude-haiku-4-5-20251001-v1:0` global cross-region inference profile. The handler enforces tool-use to return a Pydantic-validated `SanctionsScreenResult`, signs it with its own Ed25519 keypair, and returns a fully-formed `DerivationCert` whose content address goes back into the parent cert's `subcontract_cert_addresses` list.
+
+This is the protocol's **subcontract** primitive working across vendor boundaries: the parent compliance cert's chain of trust extends to a sub-agent run on AWS infrastructure, signed with a different keypair, anchored to the same Hedera HCS topic. A verifier auditing the parent cert can recursively walk into the sub-cert and re-verify everything from public keys + the Mirror Node REST API. **Why Lambda + Bedrock specifically:** Lambda's stateless model fits the "agent does one focused thing, returns" pattern (no idle compute cost, scales to zero, scales infinitely under load); Bedrock's global cross-region inference profile auto-routes Claude calls across all available AWS regions with zero ops on our side. SAM (`template.yaml`, 92 lines) deploys the whole thing — Lambda + API Gateway + IAM role + permissions — in one shot.
+
+#### 2.4.2 KIRO IDE + MCP — verifiable human audit
+
+A regulator or counterparty doesn't trust our verification UI; they want to verify themselves. AgentLevy ships an **MCP server** (Model Context Protocol, Python SDK, stdio transport) that runs locally and exposes 5 verification tools to any MCP-compatible client — including AWS's **KIRO IDE**:
+
+| Tool | What it does |
+|---|---|
+| `verify_cert` | Recompute the content address; verify the signature against `seller_pubkey`. |
+| `verify_hedera_anchor` | HTTP GET against Mirror Node REST; confirm the message body and consensus timestamp match the cert's `hcs_receipt`. |
+| `verify_base_escrow` | RPC against Base Sepolia; confirm the escrow's `hashlock` matches the cert's content address and that release succeeded. |
+| `audit_cert_chain` | Walk a cert chain recursively, calling the three verifiers above on every node. |
+| `emit_audit_cert` | Sign and emit an audit-summary `DerivationCert` (the audit becomes another link in the chain — *recursively verifiable*). |
+
+The auditor installs the MCP server in `~/.kiro/settings/mcp.json`, reloads KIRO, and the IDE-agent gains those 5 tools natively. **The audit becomes another cert.** Whoever later audits *the audit* gets the same recursive guarantees. KIRO's first-class MCP support meant we could plug verification into a regulator's actual workflow with **zero IDE-side code** — install via JSON config, reload, done.
+
+### 2.5 Future: dNFT + SmartEscrow integration pattern (XRPL-specific, Phase 3)
 
 XRPL natively supports two primitives that, when composed with AgentLevy's cert chain, unlock a class of use cases no other chain can offer as cleanly today:
 
@@ -221,7 +256,7 @@ A verifier with `(buyer_pubkey, compliance_pubkey, sanctions_pubkey, the 5 certs
 2. **Every content address resolves.** Recompute SHA-256 over JCS-RFC8785 + NFC canonical bytes; match against the reference. The reference implementation is open-source; the canonicalization rules are RFC-published.
 3. **Every back-reference is consistent.** `task_spec_address` on the cert resolves to the actual TaskSpec; `input_addresses` resolve to the actual inputs the spec declared; `subcontract_cert_addresses` resolve to actual child certs.
 4. **Every cert was witnessed by Hedera.** A single HTTP GET to Hedera Mirror Node REST returns the message body that was anchored, the consensus timestamp, the sequence number. Compare against the cert's `hcs_receipt`; verify match.
-5. **The escrow released against the final cert hash.** XRPL public transaction history shows the escrow was funded with hashlock X and released after submission of cert X. Public, auditable, no API key required.
+5. **The escrow released against the final cert hash.** Base Sepolia public transaction history (via [BaseScan](https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3)) shows the deployed `HashlockEscrow` contract was funded with hashlock X and released to the seller after submission of the cert payload that hashes to X. Public, auditable, no API key required. (For the XRPL sibling impl, the same auditability holds via XRPL's public transaction history.)
 
 Math, not trust. The verification doesn't depend on the buyer's vendor still existing, the compliance agent still being active, the sanctions agent still being reachable, or the seller's company still being in business. The audit verifies in 2046 the same way it verifies today.
 
@@ -266,7 +301,7 @@ Increasingly common stack: agent identity via DIDs, payment via x402-style rails
 **What it solves:** A tightly-integrated agent marketplace with economic incentives for agent creators. Discovery + payment + delivery in one stack.
 
 **What it doesn't solve (vs AgentLevy):**
-- **Platform-bound to Base + Virtuals tokens.** AgentLevy is chain-neutral; the same protocol runs on XRPL today and via UOR-ADDR-1 adapters on any other chain.
+- **Platform-bound to Base + Virtuals tokens.** AgentLevy is chain-neutral; the same protocol runs on Base today (this submission) and on XRPL today (sibling impl), and via UOR-ADDR-1 adapters on any other chain.
 - **Marketplace primitive vs settlement primitive.** ACP is great for "agents discover + transact with each other in a token economy"; AgentLevy is for "this work was performed, here's the math, anyone can verify forever."
 - **TEE attestation vs cryptographic-cert chains.** TEE attestation requires trusting Intel/AMD/etc. + the TEE provider's attestation service. A cert chain anchored on two independent public ledgers requires trusting math + open consensus.
 
@@ -318,7 +353,7 @@ Already addressed above (5.1). Custodial → AgentLevy non-custodial.
 
 **What they solve:** Multi-party transaction systems with controlled access; mature in financial-services use cases.
 
-**What they don't solve:** Permissioned-blockchain trust models still require trust in the consortium operating the chain. AgentLevy's two-ledger anchoring on public chains (XRPL + Hedera) inherits the trust models of public consensus — much broader, much harder to subvert.
+**What they don't solve:** Permissioned-blockchain trust models still require trust in the consortium operating the chain. AgentLevy's two-ledger anchoring on public chains (Base + Hedera in this submission; XRPL + Hedera in the sibling impl) inherits the trust models of public consensus — much broader, much harder to subvert.
 
 ---
 
@@ -330,7 +365,7 @@ The wedge market is **KYC compliance** (the demo target). The protocol generaliz
 
 **Pain:** KYC verification is high-volume, regulator-scrutinized, and currently locked into one or two vendors per bank. Switching vendors is multi-year. Audit response to regulator inquiries means digging through vendor portal exports, hoping the original vendor's account is still active.
 
-**AgentLevy fit:** Banks can keep their existing KYC workflow vendors but require those vendors to emit AgentLevy-compatible certs. The bank holds the cert chain; the regulator can re-verify against XRPL + Hedera independently, without the vendor's API.
+**AgentLevy fit:** Banks can keep their existing KYC workflow vendors but require those vendors to emit AgentLevy-compatible certs. The bank holds the cert chain; the regulator can re-verify against Base + Hedera (or XRPL + Hedera, depending on the chain adapter) independently, without the vendor's API.
 
 **Procurement reality:** Mid-market regional banks ($X–X B AUM) have enough volume to feel the pain and enough autonomy to pilot a new approach without a 24-month procurement cycle. Bigger banks are harder to land and slower to move.
 
@@ -349,7 +384,7 @@ The wedge market is **KYC compliance** (the demo target). The protocol generaliz
 **AgentLevy fit:**
 - **Decades-long audit horizons** → two-ledger anchoring is *especially* valuable. Single-chain bets feel risky over that timeframe to deal counsel.
 - **Multi-party verification** → each party can independently verify on whichever chain they trust most, without going through the deal coordinator.
-- **Cross-jurisdictional acceptance** → having both XRPL (more neutral, longer track record) and Hedera (US Council-governed, lots of Fortune 500) pre-empts the question of which regulator trusts which chain.
+- **Cross-jurisdictional acceptance** → the two-ledger pattern (settlement on Base or XRPL + audit on Hedera Council-governed HCS) pre-empts the question of which regulator trusts which chain. Multiple settlement-chain options means a bank can pick the chain whose governance their regulator already accepts.
 - **Willingness to pay** → escrow fees on a $500M deal are millions; paying for "audit-trail-that-outlives-the-deal-team" is trivially justified.
 
 **Year-2 wedge.** Higher-value than KYC; longer sales cycle.
@@ -366,8 +401,8 @@ The wedge market is **KYC compliance** (the demo target). The protocol generaliz
 **AgentLevy fit (especially strong):**
 
 - **Title chain naturally maps to cert chain.** Each conveyance is a signed cert referencing the prior owner's cert by content address. The "proof of clean title" becomes hash-chain verification — same primitive as the cert chain we ship for KYC.
-- **30-year audit horizon → two-ledger anchoring is essential.** Single-chain bets feel risky; two-ledger redundancy across XRPL + Hedera (different governance models, different consensus mechanisms) is exactly the property title insurers need.
-- **Smart escrow for closing funds.** XLS-100 SmartEscrow's hashlock pattern fits "release funds when title transfer is recorded" naturally — the cert hash IS the recording.
+- **30-year audit horizon → two-ledger anchoring is essential.** Single-chain bets feel risky; two-ledger redundancy across Base + Hedera (or XRPL + Hedera) — different governance models, different consensus mechanisms — is exactly the property title insurers need.
+- **Smart escrow for closing funds.** Base `HashlockEscrow` (or XRPL XLS-100 SmartEscrow) fits "release funds when title transfer is recorded" naturally — the cert hash IS the recording.
 - **Cross-state verification without per-county integration.** A cryptographically-verifiable title chain bypasses the need to integrate with each county recorder's database. The chain itself IS the proof; the recorder becomes one anchor among several.
 
 **Willingness to pay:** title insurance premiums are 0.5–1.0% of property value; on a $500K home, $2,500–$5,000 per closing. National title insurers (First American, Fidelity National, Stewart) have billions in annual revenue and active R&D budgets for chain-of-title automation. **Year-2/3 pilot target alongside M&A.**
@@ -381,7 +416,7 @@ Layer on top: clinical AI agents (decision support, prior authorization, claims 
 **AgentLevy fit (HIPAA-compliant by construction):**
 
 - **PHI never goes onchain.** Only the **content address** of the access event (hash of canonical metadata) + the agent's signature + the consensus timestamp anchor on chain. The PHI itself stays inside the EHR's compliant infrastructure. The cert is a verifiable claim *about* the access, not the PHI.
-- **Cross-EHR audit trails without trust between vendors.** Epic and Cerner can independently verify each other's cert chains via Hedera Mirror Node + XRPL JSON-RPC. No bilateral trust agreement needed.
+- **Cross-EHR audit trails without trust between vendors.** Epic and Cerner can independently verify each other's cert chains via Hedera Mirror Node + Base JSON-RPC (or XRPL JSON-RPC). No bilateral trust agreement needed.
 - **Clinical AI inference provenance.** When an agent flags a scan, suggests a diagnosis, or auto-completes a clinical note, the `DerivationCert` records what model + version + inputs + output. Court-admissible cryptographic provenance for AI-driven clinical decisions.
 - **Patient-controlled access.** Patient pubkey can be required as a co-signer on certain cert types (e.g., third-party data exports), giving patients verifiable control over their record's downstream uses. Aligns with Cures Act intent.
 
@@ -433,7 +468,7 @@ This is the territory where AgentLevy stops being a KYC-specific protocol and be
 
 ### 6.11 dNFT-enabled markets (Phase 3 expansion, XRPL-specific)
 
-The use cases above (§6.1–6.10) all run on AgentLevy's core cert chain + two-ledger settlement. Layering XRPL's dNFT + SmartEscrow primitives on top (architecture pattern in §2.4) unlocks a distinct class of markets where the workflow's *state* — not just its history — needs to live onchain in a way that automates economic consequences.
+The use cases above (§6.1–6.10) all run on AgentLevy's core cert chain + two-ledger settlement. Layering XRPL's dNFT + SmartEscrow primitives on top (architecture pattern in §2.5) unlocks a distinct class of markets where the workflow's *state* — not just its history — needs to live onchain in a way that automates economic consequences.
 
 The flagship of this class is AI model pay-per-inference with cryptographic enforcement.
 
@@ -472,7 +507,7 @@ Neither problem has a satisfying solution. Both are blocked by the same gap: **n
 | **Open-source model commercialization** | Open-weight model creators can monetize commercial deployments via on-chain royalties without giving up open licensing |
 | **Model-routing services** (compound AI systems that pick which model to call) | Cert chain proves which underlying model served each subroutine; routing decisions become auditable |
 
-**Defensibility:** the combination requires (a) a cert protocol that produces standards-aligned content addresses, (b) a chain with native dNFT update + SmartEscrow primitives, and (c) a verifiable audit anchor across an independent ledger. AgentLevy provides (a); XRPL provides (b); Hedera HCS provides (c). **Coinbase x402 + Virtuals ACP + traditional API key billing each have one of these; none have all three.**
+**Defensibility:** the combination requires (a) a cert protocol that produces standards-aligned content addresses, (b) a chain with native dNFT update + SmartEscrow primitives (or the Solidity equivalent), and (c) a verifiable audit anchor across an independent ledger. AgentLevy provides (a); XRPL provides (b) natively for the Phase 3 dNFT-licensed flagship use cases (Base provides equivalent settlement via the deployed Solidity `HashlockEscrow` for the standard cert chain); Hedera HCS provides (c). **Coinbase x402 + Virtuals ACP + traditional API-key billing each have one of these; none have all three.**
 
 This use case alone could justify Phase 3 prioritization. The total addressable market is the full size of the AI inference economy — projected at hundreds of billions of dollars by the late 2020s, currently mostly billed via vendor-trusted systems with weak provenance.
 
@@ -496,16 +531,24 @@ The two scariest failure modes in agent-driven onchain commerce are exactly the 
 
 ### 7.1 Smart-contract risk → minimal verifier surface
 
-Most onchain escrow contracts run thousands of lines of Solidity, with arbitrary call patterns and re-entrancy attack surface. AgentLevy uses XRPL XLS-100 SmartEscrow with a deliberately minimal `FinishFunction`:
+Most onchain escrow contracts run thousands of lines of Solidity, with arbitrary call patterns and re-entrancy attack surface. AgentLevy's `HashlockEscrow` contract on Base Sepolia is **~100 lines of Solidity** with a single conditional release rule:
 
-- ~10 lines of WASM logic: compute hash of submitted cert payload; compare to hashlock committed at escrow creation; release iff match.
-- Deterministic by construction — no oracles, no time-dependent branches, no external calls.
+```solidity
+require(sha256(certPayload) == e.hashlock, "cert mismatch");
+e.released = true;
+require(token.transfer(e.seller, e.amount), "transfer failed");
+```
+
+- **One verification check** — sha256 of the submitted cert payload must match the hashlock committed at escrow creation. That's the entire release condition.
+- Deterministic by construction — no oracles, no time-dependent branches, no external calls beyond the standard ERC-20 USDC transfer.
+- The `released` flag is set before the transfer call → no re-entrancy attack surface.
 - Auditable in a single afternoon, not a week of formal verification.
-- Hashlock pre-commitment — the buyer locks in the expected output at escrow funding; the seller cannot retroactively renegotiate.
+- Hashlock pre-commitment — the buyer locks in the expected cryptographic outcome at escrow funding; the seller cannot retroactively renegotiate.
+- **EIP-3009 USDC native** — no custom token contract; reuses Circle's audited USDC implementation. One less surface to audit.
 
-XRPL Smart Escrow is also natively currency-aware (RLUSD, XRP) without a custom token contract — one less surface to audit.
+The XRPL sibling implementation expresses the same release rule in ~10 lines of WASM via XLS-100 SmartEscrow's `FinishFunction`, with RLUSD as the asset — same security property, different verifier substrate.
 
-**Honest acknowledgment:** WASM `FinishFunction` is new (XLS-100 activated Feb 2026); no production-scale audit history yet. Mainnet deployments will go through a top-tier security firm before any production funds are at risk.
+**Honest acknowledgment:** the Solidity `HashlockEscrow` is custom (deployed live to Base Sepolia for this submission); no production audit history yet. The XRPL sibling's WASM `FinishFunction` is also new (XLS-100 activated Feb 2026). Mainnet deployments on either chain will go through a top-tier security firm before any production funds are at risk.
 
 ### 7.2 LLM negotiation risk → bounded, schema-locked, cache-replayable
 
@@ -530,9 +573,9 @@ VTEAI is a published draft; UOR-ADDR-1 is a community proposal. Neither is forma
 
 ### 7.5 Chain-bet risk
 
-**XRPL bet:** XLS-100 is recently activated; ecosystem maturity is moderate. **Mitigation:** UOR-ADDR-1 chain-binding adapter pattern — Hedera EVM, Solana, Sui, Base can all be added without changing the protocol layer.
+**Settlement-chain bet:** Base + USDC + EIP-3009 is the primary settlement path in this submission (live deployment on Base Sepolia). The XRPL sibling impl shows XLS-100 + RLUSD as a second supported adapter. **Mitigation:** UOR-ADDR-1 chain-binding adapter pattern — Hedera EVM, Solana, Sui, and any other chain supporting a hashlock-conditional release can be added without changing the protocol layer.
 
-**Hedera bet:** HCS is mature and enterprise-adopted (Hedera Council includes Google, IBM, Boeing, LG, Standard Bank, etc.). **Mitigation:** the HCS anchor is additive, not gating. Settlement on XRPL works without HCS; HCS is the second witness, not the first.
+**Hedera bet:** HCS is mature and enterprise-adopted (Hedera Council includes Google, IBM, Boeing, LG, Standard Bank, etc.). **Mitigation:** the HCS anchor is additive, not gating. Settlement on Base (or XRPL) works without HCS; HCS is the second witness, not the first.
 
 ---
 
@@ -546,7 +589,7 @@ VTEAI is a published draft; UOR-ADDR-1 is a community proposal. Neither is forma
 
 ### 8.2 Multi-chain via UOR-ADDR-1 adapters
 
-XRPL ships first because XLS-100 is ready. UOR-ADDR-1's chain-binding adapter pattern means **any chain that supports a hashlock-conditional release can be added without changing the protocol layer**: Hedera EVM, Solana, Sui, Base — each gets an adapter; agents stay chain-agnostic.
+**Base ships first** in this hackathon submission with a live `HashlockEscrow` Solidity contract on Base Sepolia + USDC + EIP-3009. **XRPL is the second live adapter** in the sibling implementation. UOR-ADDR-1's chain-binding adapter pattern means **any chain that supports a hashlock-conditional release can be added without changing the protocol layer**: Hedera EVM, Solana, Sui, and beyond — each gets an adapter; agents stay chain-agnostic. *One protocol, two live chains today, more adapters tomorrow.*
 
 ### 8.3 Verifiable agent memory + AI inference provenance
 
@@ -561,7 +604,7 @@ This is the territory where AgentLevy stops being KYC-specific and becomes the s
 
 ### 8.4 Phase 3: dNFT + SmartEscrow integration (XRPL-specific)
 
-Layering XRPL's native XLS-20 dNFTs and XLS-100 SmartEscrow on top of AgentLevy's cert chain — see architecture pattern in §2.4 and market catalog in §6.11. Phase 3 productizes this combination, with **AI model pay-per-inference with cryptographic enforcement** (§6.11.1) as the flagship use case.
+Layering XRPL's native XLS-20 dNFTs and XLS-100 SmartEscrow on top of AgentLevy's cert chain — see architecture pattern in §2.5 and market catalog in §6.11. Phase 3 productizes this combination, with **AI model pay-per-inference with cryptographic enforcement** (§6.11.1) as the flagship use case.
 
 The TAM for AI model licensing alone is the full size of the AI inference economy — projected at hundreds of billions of dollars by the late 2020s, currently mostly billed via vendor-trusted systems with weak provenance. AgentLevy + dNFT + SmartEscrow is the first protocol stack that solves usage tracking, royalty enforcement, and provenance simultaneously, with no trusted intermediary.
 
