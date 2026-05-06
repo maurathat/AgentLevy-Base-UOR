@@ -1,0 +1,746 @@
+[
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 2,
+      "row": 64
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 56
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 56,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 32,
+      "row": 59
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.base_layer.escrow import (\n    BaseConfig,\n    approve_usdc,\n    create_escrow,\n    finish_escrow,\n    get_escrow,\n    usdc_balance,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 64
+          },
+          "location": {
+            "column": 1,
+            "row": 56
+          }
+        }
+      ],
+      "message": "Remove unused import: `agentlevy.base_layer.escrow.content_address_to_hashlock`"
+    },
+    "location": {
+      "column": 5,
+      "row": 59
+    },
+    "message": "`agentlevy.base_layer.escrow.content_address_to_hashlock` imported but unused",
+    "noqa_row": 59,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 71,
+      "row": 65
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 65
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 65,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 56,
+      "row": 65
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 66
+          },
+          "location": {
+            "column": 1,
+            "row": 65
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 43,
+      "row": 65
+    },
+    "message": "`agentlevy.hedera_layer.anchor.submit_anchor` imported but unused",
+    "noqa_row": 65,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 71,
+      "row": 65
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 66
+          },
+          "location": {
+            "column": 1,
+            "row": 65
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 58,
+      "row": 65
+    },
+    "message": "`agentlevy.hedera_layer.anchor.verify_anchor` imported but unused",
+    "noqa_row": 65,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 43,
+      "row": 66
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 66
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 66,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 2,
+      "row": 70
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 67
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 67,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 2,
+      "row": 74
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 71
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 71,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 62,
+      "row": 75
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 75
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 75,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 53,
+      "row": 76
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 76
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 76,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 65,
+      "row": 77
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 77
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 77,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 2,
+      "row": 83
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 78
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 78,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "F541",
+    "end_location": {
+      "column": 74,
+      "row": 216
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/agents/orchestrator.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "\"      ↳ falling back to local Anthropic for this run\"",
+          "end_location": {
+            "column": 74,
+            "row": 216
+          },
+          "location": {
+            "column": 19,
+            "row": 216
+          }
+        }
+      ],
+      "message": "Remove extraneous `f` prefix"
+    },
+    "location": {
+      "column": 19,
+      "row": 216
+    },
+    "message": "f-string without any placeholders",
+    "noqa_row": 216,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/f-string-missing-placeholders"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 23,
+      "row": 34
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/llm/cache.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Optional",
+          "end_location": {
+            "column": 33,
+            "row": 34
+          },
+          "location": {
+            "column": 1,
+            "row": 34
+          }
+        }
+      ],
+      "message": "Remove unused import: `typing.Any`"
+    },
+    "location": {
+      "column": 20,
+      "row": 34
+    },
+    "message": "`typing.Any` imported but unused",
+    "noqa_row": 34,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 23,
+      "row": 28
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/llm/client.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Optional, Type, TypeVar",
+          "end_location": {
+            "column": 48,
+            "row": 28
+          },
+          "location": {
+            "column": 1,
+            "row": 28
+          }
+        }
+      ],
+      "message": "Remove unused import: `typing.Any`"
+    },
+    "location": {
+      "column": 20,
+      "row": 28
+    },
+    "message": "`typing.Any` imported but unused",
+    "noqa_row": 28,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 48,
+      "row": 31
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/llm/client.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from pydantic import BaseModel",
+          "end_location": {
+            "column": 48,
+            "row": 31
+          },
+          "location": {
+            "column": 1,
+            "row": 31
+          }
+        }
+      ],
+      "message": "Remove unused import: `pydantic.ValidationError`"
+    },
+    "location": {
+      "column": 33,
+      "row": 31
+    },
+    "message": "`pydantic.ValidationError` imported but unused",
+    "noqa_row": 31,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 42,
+      "row": 33
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/llm/client.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.llm.cache import LLMCache",
+          "end_location": {
+            "column": 52,
+            "row": 33
+          },
+          "location": {
+            "column": 1,
+            "row": 33
+          }
+        }
+      ],
+      "message": "Remove unused import: `agentlevy.llm.cache.CacheMiss`"
+    },
+    "location": {
+      "column": 33,
+      "row": 33
+    },
+    "message": "`agentlevy.llm.cache.CacheMiss` imported but unused",
+    "noqa_row": 33,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 11,
+      "row": 91
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 91
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 91,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 62,
+      "row": 94
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 94
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 94,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 53,
+      "row": 95
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 95
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 95,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 2,
+      "row": 102
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 96
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 96,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 9,
+      "row": 99
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.primitives.signing import (\n    Keypair,\n    public_key_hex,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 102
+          },
+          "location": {
+            "column": 1,
+            "row": 96
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 99
+    },
+    "message": "`agentlevy.primitives.signing.sign` imported but unused",
+    "noqa_row": 99,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 18,
+      "row": 100
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.primitives.signing import (\n    Keypair,\n    public_key_hex,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 102
+          },
+          "location": {
+            "column": 1,
+            "row": 96
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 100
+    },
+    "message": "`agentlevy.primitives.signing.signature_hex` imported but unused",
+    "noqa_row": 100,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 11,
+      "row": 101
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/mcp_server/server.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.primitives.signing import (\n    Keypair,\n    public_key_hex,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 102
+          },
+          "location": {
+            "column": 1,
+            "row": 96
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 101
+    },
+    "message": "`agentlevy.primitives.signing.verify` imported but unused",
+    "noqa_row": 101,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 28,
+      "row": 59
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/primitives/signing.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Union",
+          "end_location": {
+            "column": 35,
+            "row": 59
+          },
+          "location": {
+            "column": 1,
+            "row": 59
+          }
+        }
+      ],
+      "message": "Remove unused import: `typing.Optional`"
+    },
+    "location": {
+      "column": 20,
+      "row": 59
+    },
+    "message": "`typing.Optional` imported but unused",
+    "noqa_row": 59,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 23,
+      "row": 54
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/primitives/task_spec.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Optional",
+          "end_location": {
+            "column": 33,
+            "row": 54
+          },
+          "location": {
+            "column": 1,
+            "row": 54
+          }
+        }
+      ],
+      "message": "Remove unused import: `typing.Any`"
+    },
+    "location": {
+      "column": 20,
+      "row": 54
+    },
+    "message": "`typing.Any` imported but unused",
+    "noqa_row": 54,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 19,
+      "row": 61
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/primitives/task_spec.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.primitives.signing import (\n    Keypair,\n    public_key_hex,\n    sign,\n    signature_hex,\n    verify,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 67
+          },
+          "location": {
+            "column": 1,
+            "row": 59
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 61
+    },
+    "message": "`agentlevy.primitives.signing.PublicKeyBytes` imported but unused",
+    "noqa_row": 61,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 19,
+      "row": 62
+    },
+    "filename": "/Users/mauraclark/AgentLevy-Base-UOR/agentlevy/primitives/task_spec.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from agentlevy.primitives.signing import (\n    Keypair,\n    public_key_hex,\n    sign,\n    signature_hex,\n    verify,\n)",
+          "end_location": {
+            "column": 2,
+            "row": 67
+          },
+          "location": {
+            "column": 1,
+            "row": 59
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 5,
+      "row": 62
+    },
+    "message": "`agentlevy.primitives.signing.SignatureBytes` imported but unused",
+    "noqa_row": 62,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  }
+]

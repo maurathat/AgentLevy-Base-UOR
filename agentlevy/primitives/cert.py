@@ -84,6 +84,37 @@ CONTENT_ADDRESS_PATTERN = r"^sha256:[0-9a-f]{64}$"
 
 
 # ---------------------------------------------------------------------------
+# Verification bounds (from internal security audit, May 6 2026)
+# ---------------------------------------------------------------------------
+
+# Default tolerance for clock skew between cert issuer and verifier (seconds).
+# Used by ``DerivationCert.verify_freshness`` to bound how far in the future a
+# cert's ``timestamp`` can be before we treat it as pre-dated. NTP skew on
+# well-managed systems is sub-second; 300 s gives generous headroom for
+# misconfigured machines without enabling meaningful pre-dating attacks.
+DEFAULT_TIMESTAMP_SKEW_SECONDS: int = 300
+
+# Maximum recursion depth for subcontract chain walks. Each cert can list
+# child cert content addresses in ``subcontract_cert_addresses``; a verifier
+# walks that graph to audit the whole chain. We cap depth to bound DoS via
+# pathologically deep / circular chains.
+MAX_CHAIN_DEPTH: int = 10
+
+
+def validate_chain_depth(depth: int) -> None:
+    """Raise ``ValueError`` if ``depth`` exceeds ``MAX_CHAIN_DEPTH``.
+
+    Single source of truth for any recursive cert-chain walker (e.g. an
+    ``expand_cert_chain`` helper in the MCP server). Walkers should call
+    this on each recursive descent before fetching the child cert.
+    """
+    if depth > MAX_CHAIN_DEPTH:
+        raise ValueError(
+            f"subcontract chain depth {depth} exceeds MAX_CHAIN_DEPTH={MAX_CHAIN_DEPTH}"
+        )
+
+
+# ---------------------------------------------------------------------------
 # Main model
 # ---------------------------------------------------------------------------
 
@@ -246,6 +277,43 @@ class DerivationCert(BaseModel):
         if len(sig) != 64 or len(pub) != 32:
             return False
         return verify(self.to_canonical_bytes(), sig, pub)
+
+    def verify_freshness(
+        self,
+        *,
+        now: Optional[datetime] = None,
+        max_skew_seconds: int = DEFAULT_TIMESTAMP_SKEW_SECONDS,
+    ) -> bool:
+        """Return True iff the cert's ``timestamp`` is not pre-dated.
+
+        Verifies that ``timestamp`` is no more than ``max_skew_seconds`` in the
+        future relative to ``now`` (defaults to ``datetime.now(timezone.utc)``).
+        Closes the pre-dating attack surface called out in the May 2026
+        security audit.
+
+        Opt-in by design: cached / staged certs from earlier sessions remain
+        loadable. Verifiers (orchestrator, MCP audit tools) call this
+        explicitly when freshness matters.
+        """
+        if now is None:
+            now = datetime.now(timezone.utc)
+        delta_seconds = (self.timestamp - now).total_seconds()
+        return delta_seconds <= max_skew_seconds
+
+    def verify_freshness_or_raise(
+        self,
+        *,
+        now: Optional[datetime] = None,
+        max_skew_seconds: int = DEFAULT_TIMESTAMP_SKEW_SECONDS,
+    ) -> None:
+        """Raise ``ValueError`` if the cert's timestamp is pre-dated."""
+        if not self.verify_freshness(now=now, max_skew_seconds=max_skew_seconds):
+            ref = now or datetime.now(timezone.utc)
+            raise ValueError(
+                f"Cert timestamp {self.timestamp.isoformat()} is more than "
+                f"{max_skew_seconds}s in the future of {ref.isoformat()} "
+                f"(pre-dating guard)"
+            )
 
     # ------------------------------------------------------------------
     # Hedera HCS audit anchor

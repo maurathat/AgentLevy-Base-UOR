@@ -214,6 +214,7 @@ AgentLevy-Base-UOR/
 │   ├── WHITEPAPER.md                # ~5,000 words: architecture, landscape, use cases, risk
 │   ├── VTEAI-DRAFT.md               # ERC draft, CC0, April 2026 (we authored)
 │   ├── UOR-ADDR-PROPOSAL.md         # community proposal, April 2026 (we co-contribute)
+│   ├── SECURITY-AUDIT.md            # self-audit (Bandit + manual): 0 HIGH, 2 MEDIUM, 4 LOW
 │   └── agentlevy-demo-deck.md       # 12-slide deck (Gamma-importable; Canva conversion required for EasyA submission)
 ├── scripts/
 │   ├── setup_hcs_topic.py           # Hedera topic creator (one-shot)

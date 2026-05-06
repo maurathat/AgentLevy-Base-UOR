@@ -130,6 +130,7 @@ AgentLevy-Base-UOR/
 | **VTEAI ERC draft** | [pitch/VTEAI-DRAFT.md](pitch/VTEAI-DRAFT.md) |
 | **UOR-ADDR-1 proposal** | [pitch/UOR-ADDR-PROPOSAL.md](pitch/UOR-ADDR-PROPOSAL.md) |
 | **Whitepaper** | [pitch/WHITEPAPER.md](pitch/WHITEPAPER.md) |
+| **Security audit** (self-audit; 0 HIGH, 2 MEDIUM, 4 LOW; Bandit clean across 2,642 LoC) | [pitch/SECURITY-AUDIT.md](pitch/SECURITY-AUDIT.md) |
 
 ---
 

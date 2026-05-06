@@ -429,3 +429,97 @@ def test_model_dump_includes_hcs_receipt():
     assert "hcs_receipt" in d
     assert d["hcs_receipt"] is not None
     assert d["hcs_receipt"]["topic_id"] == "0.0.8856047"
+
+
+# ---------------------------------------------------------------------------
+# Audit-fix guards (May 2026 self-audit — pre-dating + chain-DoS)
+# ---------------------------------------------------------------------------
+
+def test_verify_freshness_accepts_present_cert():
+    """A cert dated 'now' must pass freshness."""
+    from datetime import datetime, timezone
+    from agentlevy.primitives.cert import DEFAULT_TIMESTAMP_SKEW_SECONDS
+
+    seller = Keypair.from_seed(TEST_SEED_SELLER)
+    cert = _build_cert(seller, timestamp=datetime.now(timezone.utc))
+    assert cert.verify_freshness() is True
+    assert DEFAULT_TIMESTAMP_SKEW_SECONDS == 300
+
+
+def test_verify_freshness_accepts_within_skew_window():
+    """+299s in the future passes the default 300s skew tolerance."""
+    from datetime import datetime, timedelta, timezone
+
+    seller = Keypair.from_seed(TEST_SEED_SELLER)
+    now = datetime.now(timezone.utc)
+    cert = _build_cert(seller, timestamp=now + timedelta(seconds=299))
+    assert cert.verify_freshness(now=now) is True
+
+
+def test_verify_freshness_rejects_predated_cert():
+    """+301s in the future fails the default 300s skew tolerance."""
+    from datetime import datetime, timedelta, timezone
+
+    seller = Keypair.from_seed(TEST_SEED_SELLER)
+    now = datetime.now(timezone.utc)
+    cert = _build_cert(seller, timestamp=now + timedelta(seconds=301))
+    assert cert.verify_freshness(now=now) is False
+
+
+def test_verify_freshness_or_raise_raises_on_predated():
+    """+1h ahead of `now` triggers the raising variant."""
+    from datetime import datetime, timedelta, timezone
+    import pytest
+
+    seller = Keypair.from_seed(TEST_SEED_SELLER)
+    now = datetime.now(timezone.utc)
+    cert = _build_cert(seller, timestamp=now + timedelta(hours=1))
+    with pytest.raises(ValueError, match="pre-dating guard"):
+        cert.verify_freshness_or_raise(now=now)
+
+
+def test_verify_freshness_past_timestamps_always_ok():
+    """Old certs are always fresh by definition (skew is forward-only)."""
+    from datetime import datetime, timedelta, timezone
+
+    seller = Keypair.from_seed(TEST_SEED_SELLER)
+    now = datetime.now(timezone.utc)
+    cert = _build_cert(seller, timestamp=now - timedelta(days=365))
+    assert cert.verify_freshness(now=now) is True
+
+
+def test_verify_freshness_custom_skew_window():
+    """Caller-supplied skew is respected."""
+    from datetime import datetime, timedelta, timezone
+
+    seller = Keypair.from_seed(TEST_SEED_SELLER)
+    now = datetime.now(timezone.utc)
+    cert = _build_cert(seller, timestamp=now + timedelta(seconds=60))
+    # Default 300s tolerates 60s
+    assert cert.verify_freshness(now=now) is True
+    # Strict 30s rejects 60s
+    assert cert.verify_freshness(now=now, max_skew_seconds=30) is False
+
+
+def test_validate_chain_depth_accepts_within_limit():
+    """Depths 0..MAX_CHAIN_DEPTH inclusive must pass."""
+    from agentlevy.primitives.cert import MAX_CHAIN_DEPTH, validate_chain_depth
+
+    for depth in range(MAX_CHAIN_DEPTH + 1):
+        validate_chain_depth(depth)  # must not raise
+
+
+def test_validate_chain_depth_rejects_overflow():
+    """One past the limit raises with a meaningful message."""
+    import pytest
+    from agentlevy.primitives.cert import MAX_CHAIN_DEPTH, validate_chain_depth
+
+    with pytest.raises(ValueError, match=f"MAX_CHAIN_DEPTH={MAX_CHAIN_DEPTH}"):
+        validate_chain_depth(MAX_CHAIN_DEPTH + 1)
+
+
+def test_validate_chain_depth_constant_is_ten():
+    """Lock the audit-documented value so silent changes can't slip past."""
+    from agentlevy.primitives.cert import MAX_CHAIN_DEPTH
+
+    assert MAX_CHAIN_DEPTH == 10
