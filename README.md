@@ -10,13 +10,21 @@
 
 ---
 
-## 🎬 Demo video + walkthrough
+## 🎬 Live demo video
 
-[![AgentLevy Loom walkthrough](https://cdn.loom.com/sessions/thumbnails/cc05c68f9c174920b54a851794a9645b-with-play.gif)](https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b)
+[![AgentLevy live demo](https://cdn.loom.com/sessions/thumbnails/985ff83882844954996efad678b181c2-with-play.gif)](https://www.loom.com/share/985ff83882844954996efad678b181c2)
 
-▶ **[Watch the full walkthrough on Loom](https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b)**
+▶ **[Watch the live demo on Loom](https://www.loom.com/share/985ff83882844954996efad678b181c2)**
 
-> Slide-by-slide walkthrough of the AgentLevy protocol — the gap, the cert chain, two-ledger settlement on Base + Hedera, AWS Lambda subcontracted sanctions agent, and the KIRO MCP audit composition. Click through to Loom for the full audio narration.
+> Live screen-capture of the AgentLevy demo running end-to-end — agents collaborating, certs anchoring, escrow releasing on Base Sepolia.
+
+## 🎙️ Slide walkthrough (Loom)
+
+[![AgentLevy slide walkthrough](https://cdn.loom.com/sessions/thumbnails/cc05c68f9c174920b54a851794a9645b-with-play.gif)](https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b)
+
+▶ **[Watch the slide-by-slide walkthrough](https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b)**
+
+> Slide-by-slide walkthrough of the AgentLevy protocol — the gap, the cert chain, two-ledger settlement on Base + Hedera, AWS Lambda subcontracted sanctions agent, and the KIRO MCP audit composition. Audio-narrated.
 
 ## 🖼️ Screenshots
 
