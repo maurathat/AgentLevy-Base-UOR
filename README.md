@@ -302,7 +302,7 @@ Content addresses are **byte-identical** to UOR Foundation's canonical reference
 ## Pitch material
 
 - **[Whitepaper](pitch/WHITEPAPER.md)** — ~5,000-word deep-dive: architecture, competitive landscape (Coinbase x402, Virtuals ACP, etc.), customer use cases (banks, M&A, title, healthcare, legal docs, AI inference), risk model, roadmap (Phase 4 AgentCore + Phase 5 KIRO MCP).
-- **[Demo deck](pitch/agentlevy-demo-deck.md)** — 12-slide hackathon deck (Markdown source; converted to Canva for EasyA submission).
+- **[Demo deck on Canva](https://canva.link/7ryvxqciltivzga)** — 13-slide hackathon deck (presentation form). Source files: [markdown](pitch/agentlevy-demo-deck.md) · [PDF](pitch/agentlevy-demo-deck.pdf) · [PPTX](pitch/agentlevy-demo-deck.pptx).
 - **[VTEAI ERC draft](pitch/VTEAI-DRAFT.md)** + **[UOR-ADDR-1 proposal](pitch/UOR-ADDR-PROPOSAL.md)** — the standards.
 
 ---

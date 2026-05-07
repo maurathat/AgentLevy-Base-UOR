@@ -136,7 +136,12 @@ AgentLevy-Base-UOR/
 
 ## Slides (Canva — required by submission)
 
-(Paste Canva slide-deck URL here)
+🎴 **Canva deck:** https://canva.link/7ryvxqciltivzga
+
+Source files (also in repo):
+- [pitch/agentlevy-demo-deck.md](pitch/agentlevy-demo-deck.md) — markdown source (13 slides, team first)
+- [pitch/agentlevy-demo-deck.pdf](pitch/agentlevy-demo-deck.pdf) — branded PDF render
+- [pitch/agentlevy-demo-deck.pptx](pitch/agentlevy-demo-deck.pptx) — PowerPoint export
 
 ---
 
