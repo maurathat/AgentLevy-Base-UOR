@@ -10,17 +10,13 @@
 
 ---
 
-## 🎬 Demo video
+## 🎬 Demo video + walkthrough
 
-*Paste screen-capture demo URL here once recorded (YouTube / Vimeo / Loom)*
+[![AgentLevy Loom walkthrough](https://cdn.loom.com/sessions/thumbnails/cc05c68f9c174920b54a851794a9645b-with-play.gif)](https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b)
 
-> **What the demo shows**: Animated walkthrough of the cert chain forming — TaskSpec drafted, both signatures, compliance agent extracts beneficial owners via Anthropic, sanctions agent runs on AWS Lambda, both certs anchored on Hedera HCS, escrow settles when sha256 matches. ~90 seconds.
+▶ **[Watch the full walkthrough on Loom](https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b)**
 
-## 🎙️ Audio walkthrough (Loom)
-
-*Paste Loom URL here once recorded*
-
-> 5–10 minute walkthrough of the project, repo structure, technology choices, and a live demo. Required by hackathon submission rules.
+> Slide-by-slide walkthrough of the AgentLevy protocol — the gap, the cert chain, two-ledger settlement on Base + Hedera, AWS Lambda subcontracted sanctions agent, and the KIRO MCP audit composition. Click through to Loom for the full audio narration.
 
 ## 🖼️ Screenshots
 

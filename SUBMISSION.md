@@ -145,15 +145,13 @@ Source files (also in repo):
 
 ---
 
-## Demo video
+## Demo video + Loom walkthrough
 
-(Paste demo video URL here — screen capture of the orchestrator + website walkthrough)
+🎙️ **Loom walkthrough:** https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b
 
----
+> Slide-by-slide narrated walkthrough of the AgentLevy protocol — the gap, the cert chain, two-ledger settlement on Base + Hedera, AWS Lambda subcontracted sanctions agent, and the KIRO MCP audit composition.
 
-## Audio walkthrough (Loom)
-
-(Paste Loom URL here — explanation of the project, repo structure, demo)
+Also embedded live on the website at https://agentlevy-maurathats-projects.vercel.app/deck
 
 ---
 

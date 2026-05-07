@@ -18,12 +18,35 @@ export default function DeckPage() {
         <h1 className="mt-4 font-display font-semibold text-4xl md:text-5xl leading-tight">
           The presentation,
           <br />
-          <span className="text-karakurenai">in two formats.</span>
+          <span className="text-karakurenai">narrated.</span>
         </h1>
         <p className="mt-6 max-w-3xl text-washi/80 leading-relaxed">
-          The Canva link is the live, interactive version — best for presenting
-          on stage. The PDF below is the offline fallback (works without
-          internet, embedded right on this page).
+          Watch the full slide-by-slide walkthrough below, or open the
+          interactive Canva deck / download the PDF for offline use.
+        </p>
+      </section>
+
+      {/* Loom video embed — primary CTA */}
+      <section className="mx-auto max-w-6xl px-6 pb-10">
+        <div className="rounded-xl overflow-hidden border border-washi/15 bg-paper aspect-video">
+          <iframe
+            src="https://www.loom.com/embed/cc05c68f9c174920b54a851794a9645b"
+            title="AgentLevy demo deck walkthrough"
+            allowFullScreen
+            className="w-full h-full"
+            style={{ border: 0 }}
+          />
+        </div>
+        <p className="mt-3 text-xs text-washi/55 text-center">
+          Loom walkthrough ·{" "}
+          <a
+            href="https://www.loom.com/share/cc05c68f9c174920b54a851794a9645b"
+            target="_blank"
+            rel="noreferrer"
+            className="text-karakurenai hover:underline"
+          >
+            open in Loom
+          </a>
         </p>
       </section>
 
