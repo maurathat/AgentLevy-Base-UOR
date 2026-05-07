@@ -1,0 +1,80 @@
+# PROJECT SUMMARY — paste-into-Google-Form version
+
+> **Audience: EasyA Consensus 2026 judges, paste-into-Google-Form textarea.**
+>
+> **Why this file exists:** Google Forms doesn't render markdown — tables and bold text print as raw characters. This file is plain-text, no tables, no bold, ~1,150 words. Just copy everything between the dashed lines below and paste into the form.
+
+---
+
+AGENTLEVY — VERIFIABLE AGENT COMMERCE, ON BASE, AUDITED ACROSS TWO INDEPENDENT LEDGERS
+
+One-line: AgentLevy makes AI-agent commerce cryptographically auditable — two AI agents complete a real KYC compliance task, settle on Base in USDC via a hashlock escrow, and anchor every cert to Hedera Consensus Service, producing an audit trail any third party can verify from public keys alone, with no trusted intermediary.
+
+WHAT WE BUILT
+
+AgentLevy is an open-source verifiable agent-commerce protocol. It lets two or more AI agents negotiate, execute, and settle work — and produce a cryptographically-verifiable record of what each agent actually did that any third party can audit from public keys alone.
+
+The hackathon submission is a live, end-to-end demonstration applied to KYC compliance: beneficial-ownership extraction plus subcontracted sanctions screening. Three AI agents collaborate across three runtimes (local Python, AWS Lambda, KIRO IDE), settling onchain on Base Sepolia, anchoring every step to Hedera Consensus Service.
+
+AgentLevy is the first reference implementation of two open standards we authored: VTEAI (Verified Task Escrow + Attestation Interface — ERC draft, CC0, April 2026) and UOR-ADDR-1 (chain-agnostic Universal Object Reference Address — community proposal). Content addresses are byte-identical to UOR Foundation's canonical reference (cross-validated live against mcp.uor.foundation).
+
+WHY WE BUILT IT
+
+Agent commerce in 2026 has a structural trust problem. When two AI agents transact across vendors — Anthropic talks to OpenAI talks to a self-hosted agent — there is no way to cryptographically prove what either agent actually did. Today's stack solves identity (vendor logs, W3C DIDs, KYC'd marketplaces, agent-platform credentials) but not work-integrity. A registered, KYC'd agent can claim to have run an analysis it didn't run, fabricate inputs, or hide a subcontracted step inside an unverifiable vendor log. The audit collapses the moment the vendor disappears.
+
+This identity-versus-work-integrity gap is becoming acute now because AI agents are doing real work at enterprise scale, single-vendor stacks are the exception, and regulators (FinCEN, EU AI Act bodies, FRE 902(13) for court admissibility) are starting to require cryptographic evidence rather than vendor-trusted databases.
+
+AgentLevy closes the gap. Math, not trust. The audit verifies in 2046 the same way it verifies today, with no dependency on any vendor still existing or any agent still being active.
+
+HOW IT WORKS
+
+The end-to-end flow, executable from the repo:
+
+1. Buyer agent drafts a TaskSpec for beneficial-ownership verification, signs it with Ed25519, and funds a HashlockEscrow contract on Base Sepolia with USDC. The hashlock is the SHA-256 of the expected final cert content address.
+
+2. Compliance agent runs the work via Anthropic Claude Haiku 4.5 with schema-locked structured output (Pydantic).
+
+3. Compliance agent subcontracts sanctions screening to a third agent running as an AWS Lambda function (Python 3.13, arm64) behind API Gateway, calling AWS Bedrock Claude Haiku 4.5. The Lambda returns a fully-formed signed DerivationCert.
+
+4. Compliance agent assembles the final DerivationCert with cryptographic references back to inputs and to the subcontracted sanctions cert. Signs it.
+
+5. Settlement: the cert payload is submitted on-chain to the Base HashlockEscrow contract. The contract runs one verification: require(sha256(certPayload) == hashlock). If it matches, USDC releases. No oracle. No off-chain settlement. No trust in either agent.
+
+6. Audit anchor: every signed cert has its content address submitted to Hedera Consensus Service (testnet topic 0.0.8856047) producing an authoritative consensus timestamp + monotonic sequence number.
+
+7. Human audit: a regulator opens KIRO IDE with our MCP server installed. The IDE-agent gains five verification tools: verify_cert, verify_hedera_anchor, verify_base_escrow, audit_cert_chain, emit_audit_cert. The audit becomes another signed cert — recursively verifiable.
+
+A verifier holding only public keys + the cert chain can independently re-check every signature, every content address, every back-reference, every Hedera consensus timestamp, and the on-chain Base escrow release.
+
+TECHNOLOGIES + SDKs
+
+Python 3.10+ for the protocol core, agent runtimes, and MCP server (~2,600 LoC). Solidity 0.8.20 for the HashlockEscrow contract (~100 LoC). TypeScript / Next.js 15 / React 19 / Tailwind for the live website on Vercel. AWS SAM for IaC.
+
+Sponsor SDKs in use: Anthropic Python SDK (Claude Haiku 4.5 with tool-use enforced), Coinbase x402 Python SDK (HTTP 402 + payment-required protocol primitives), Coinbase CDP SDK + OnchainKit (browser-side wallet UX in web/), Hiero Python SDK (pure-Python Hedera, no Java dependency), MCP Python SDK (stdio-transport server for KIRO IDE), web3.py + py-solc-x (Base RPC + Solidity compilation), pydantic (structured-output validation), cryptography (Ed25519 via NIST/OpenSSL bindings — no custom crypto).
+
+CHAINS USED + WHY EACH WAS UNIQUELY POSSIBLE
+
+Base Sepolia — settlement layer. Coinbase x402 + USDC transferWithAuthorization (EIP-3009) let us implement settlement-conditional-on-cryptographic-evidence in roughly 10 lines of Solidity verification — one require(sha256(certPayload) == hashlock) call. No custom token contract. Smart-contract minimalism = auditable in an afternoon, not a week. Live deployment: 0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3 on Base Sepolia.
+
+Hedera Consensus Service — audit anchor. HCS provides authoritative consensus timestamps + monotonic sequence numbers per topic at $0.0001 per message. The Mirror Node REST API is publicly queryable — no SDK required for verification. Judges, regulators, or counterparties can re-verify with curl alone. Independent governance from Base validators (Hedera Council includes Google, IBM, Boeing, LG, Standard Bank). Live deployment: HCS testnet topic 0.0.8856047.
+
+AWS Lambda + Bedrock — subcontracted agent runtime. Lambda's stateless model fits the "agent does one focused thing, returns" pattern perfectly — no idle compute cost, scales to zero between invocations, scales infinitely under load. Bedrock's global cross-region inference profile auto-routes Claude calls across all available AWS regions with zero ops on our side. SAM made the deploy a one-shot 92-line template.yaml. Live endpoint: https://1q4dt1zune.execute-api.us-east-1.amazonaws.com/screen.
+
+WHY TWO LEDGERS
+
+Each chain plays its strength. Base is built for cheap, fast, conditional settlement. Hedera HCS is built for high-throughput consensus ordering with independent governance. Combining them gives independent witnesses (if Base reorgs, the audit lives on Hedera; if Hedera changes Council, the money is on Base — neither bet is total), independent governance models (a bank can pick the chain whose governance their regulator already accepts), and settlement decoupled from audit (Base says the money moved; Hedera says the cert existed at this exact moment, witnessed by separate consensus).
+
+A sibling implementation (https://github.com/maurathat/AgentLevy-XRPL-UOR) demonstrates the same protocol primitives behind XRPL XLS-100 SmartEscrow + RLUSD — proving the chain-binding adapter pattern works. One protocol, two live chains today.
+
+LIVE STATUS
+
+Live website: https://agentlevy-maurathats-projects.vercel.app
+GitHub repository (Apache 2.0): https://github.com/maurathat/AgentLevy-Base-UOR
+Sibling repository (XRPL adapter): https://github.com/maurathat/AgentLevy-XRPL-UOR
+Base Sepolia escrow: https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3
+Hedera HCS audit topic: https://hashscan.io/testnet/topic/0.0.8856047
+AWS Lambda endpoint: https://1q4dt1zune.execute-api.us-east-1.amazonaws.com/screen
+
+The full repo includes: 128 passing tests; a self-conducted security audit (0 HIGH, 2 MEDIUM, 4 LOW; Bandit clean across 2,642 LoC, audit doc at pitch/SECURITY-AUDIT.md); a ~5,000-word whitepaper (pitch/WHITEPAPER.md); the VTEAI ERC draft and UOR-ADDR-1 community proposal; and a deployed Next.js website.
+
+— Maura Clark, founder, AgentLevy / Kessai. Consensus EasyA Hackathon, Miami, May 2026.

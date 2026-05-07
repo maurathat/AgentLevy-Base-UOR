@@ -1,4 +1,4 @@
-# AgentLevy — Demo Deck (Consensus EasyA · 12 slides)
+# AgentLevy — Demo Deck (Consensus EasyA · 13 slides)
 
 > **For: Consensus EasyA hackathon judges + booth visitors + builder audience.** Distinct from the Kessai investor deck (`pitch/kessai-funding-deck.md`) which leads with the company. This deck leads with the **protocol and the live demo** — what you're about to see and why each piece matters.
 >
@@ -18,7 +18,23 @@
 
 ---
 
-## SLIDE 1 — Title
+## SLIDE 1 — Team
+
+**Maura Clark** — Founder, AgentLevy / Kessai
+
+**Independent Technologist · Universal Object Reference Foundation member**
+**Previously: Ribbon Communications · Ciena**
+
+— Solo builder. AI-pair-programmed with Claude (Opus + Sonnet) — building the agent commerce protocol *with* the agents we're commercializing.
+— Authored two open standards underneath the demo: **VTEAI** (verified-work settlement, ERC draft, CC0) and **UOR-ADDR-1** (chain-agnostic content addressing).
+— Live cross-validated against UOR Foundation's canonical reference (May 2026) — byte-identical content addresses, no fork.
+
+— Consensus EasyA · Miami · May 5–7, 2026
+— maurathat · github.com/maurathat/AgentLevy-Base-UOR
+
+---
+
+## SLIDE 2 — Title
 
 ![AgentLevy](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/agentlevy_logo_white.png)
 
@@ -32,7 +48,7 @@
 
 ---
 
-## SLIDE 2 — The gap
+## SLIDE 3 — The gap
 
 > *"Agent commerce assumes good faith. Production cannot."*
 
@@ -49,7 +65,7 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ---
 
-## SLIDE 3 — Why we built it (vs what exists)
+## SLIDE 4 — Why we built it (vs what exists)
 
 **Yes, things exist in this space. None of them solve the work-integrity problem.**
 
@@ -69,7 +85,7 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ---
 
-## SLIDE 4 — What we built
+## SLIDE 5 — What we built
 
 **AgentLevy is a protocol-layer demo where two AI agents negotiate and execute a KYC compliance task, sign each step with content-addressed derivation certificates, settle on Base via a hashlock USDC escrow, and anchor every cert to Hedera Consensus Service — producing an audit trail verifiable from public keys alone, across two independent ledgers, with no trusted intermediary.**
 
@@ -87,7 +103,7 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ---
 
-## SLIDE 5 — The KYC demo
+## SLIDE 6 — The KYC demo
 
 ![A real UOR Module Certificate in the wild — Kessai certs follow the same shape, byte-for-byte](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/hologram-cert.png)
 
@@ -104,7 +120,7 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ---
 
-## SLIDE 6 — The cert chain anatomy
+## SLIDE 7 — The cert chain anatomy
 
 ![One UOR address, four representations — verified byte-identical to UOR Foundation's canonical reference](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/hero-uor-address.png)
 
@@ -137,7 +153,7 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 
 ---
 
-## SLIDE 7 — Two-ledger settlement
+## SLIDE 8 — Two-ledger settlement
 
 **Base settles. Hedera anchors. AWS Lambda runs the agent. KIRO IDE audits. Independent witnesses, independent runtimes.**
 
@@ -159,7 +175,7 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 
 ---
 
-## SLIDE 8 — The verification math
+## SLIDE 9 — The verification math
 
 ![Each byte becomes one Braille codepoint — codepoint = U+2800 + byte_value](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/byte-to-glyph-primer.png)
 
@@ -175,7 +191,7 @@ The address outlives the vendor. It outlives the agent. It outlives any single c
 
 ---
 
-## SLIDE 9 — Risk mitigations (smart contracts + LLMs)
+## SLIDE 10 — Risk mitigations (smart contracts + LLMs)
 
 **The two scariest failure modes in agent-driven onchain commerce are exactly the two we engineered away from.**
 
@@ -212,7 +228,7 @@ LLMs are non-deterministic, prompt-injectable, and prone to over-spending tokens
 
 ---
 
-## SLIDE 10 — Standards-aligned, by design
+## SLIDE 11 — Standards-aligned, by design
 
 ![UOR Foundation](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/uor_foundation_logo.png)
 
@@ -245,7 +261,7 @@ Standards consolidate fast once a category coalesces. Today's specs are publishe
 
 ---
 
-## SLIDE 11 — Roadmap
+## SLIDE 12 — Roadmap
 
 **Already shipped in the hackathon submission:**
 
@@ -316,7 +332,7 @@ The open-source reference protocol is AgentLevy. The commercial layer is Kessai 
 
 ---
 
-## SLIDE 12 — What this becomes
+## SLIDE 13 — What this becomes
 
 ![Kessai logo](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/kessai_logo_primary.png)
 
