@@ -85,9 +85,17 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 
 ---
 
-## SLIDE 5 — What we built
+## SLIDE 5 — What AgentLevy actually does
 
-**AgentLevy is a protocol-layer demo where two AI agents negotiate and execute a KYC compliance task, sign each step with content-addressed derivation certificates, settle on Base via a hashlock USDC escrow, and anchor every cert to Hedera Consensus Service — producing an audit trail verifiable from public keys alone, across two independent ledgers, with no trusted intermediary.**
+**AgentLevy is the first public reference implementation of two open standards (VTEAI + UOR-ADDR-1). It demonstrates verifiable agent commerce end-to-end on testnet today.**
+
+Concretely, AgentLevy:
+
+1. **Negotiates work between agents** — buyer agent drafts a UOR-addressed `TaskSpec`; seller signs accepting it. The spec becomes a cryptographically referenceable contract forever.
+2. **Settles payment on cryptographic evidence** — buyer escrows USDC on Base with a hashlock that *is* the UOR address of the expected output cert. Submission of the matching cert to the contract triggers release. **No oracle, no off-chain reconciliation, no trusted middleman.**
+3. **Records the work as a portable cert chain** — every step (TaskSpec, output, subcontracted sub-work, audit) is a UOR-addressed signed cert. The chain composes recursively; subcontracts become hash references, never UUIDs.
+4. **Anchors timestamps to a separate witness** — every cert's UOR address publishes to Hedera Consensus Service for tamper-evident timestamping. Independent governance from the settlement chain.
+5. **Audits from public keys alone** — a verifier holding only the cert chain plus the involved public keys can re-verify everything: signatures, content addresses, back-references, settlements, timestamps. **No API access required.**
 
 | Component | What it does | Status |
 |---|---|---|
@@ -99,7 +107,7 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 | **AgentLevy MCP server in KIRO** | Human-auditor frontend — 5 verification tools in your IDE | ✅ Verified live in KIRO IDE |
 | **VTEAI + UOR-ADDR-1** | Standards we authored | ✓ CC0 / community |
 
-**The whole stack is open, reproducible, and real on testnet today. Five live, verifiable artifacts judges can independently re-check.**
+**Open source, reproducible, real on testnet today. Five live, verifiable artifacts anyone can independently re-check.**
 
 ---
 
@@ -231,6 +239,12 @@ LLMs are non-deterministic, prompt-injectable, and prone to over-spending tokens
 ## SLIDE 11 — Standards-aligned, by design
 
 ![UOR Foundation](https://raw.githubusercontent.com/maurathat/kessai-pitch-assets/main/uor_foundation_logo.png)
+
+**What UOR actually is.**
+
+UOR (Universal Object Reference) is a content-addressing standard developed within the UOR Foundation ecosystem. It gives every digital object a stable, mathematical, vendor-neutral identity that stays the same across every system the object encounters — Base, XRPL, Solana, AWS, your laptop, the counterparty's database. The address is self-verifying from a SHA-256 over canonical bytes; no API call, no registry, no vendor trust required.
+
+**UOR is to digital objects what URLs were to documents** — a universal naming layer that lets anything reference anything else, across systems, vendors, and time. For agent commerce specifically, this means: receipts that travel across marketplaces, audit trails that survive any single platform's lifecycle, and provenance that composes across vendor boundaries without lookup tables.
 
 **Foundation-backed standard, not a startup spec.**
 
