@@ -139,7 +139,7 @@ export default function ArchitecturePage() {
           <DocCard
             title="AgentLevy Whitepaper"
             tag="~5,000 words · v1.0"
-            href="https://github.com/maurathat/verifiable-agent-settlement-standards"
+            href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/WHITEPAPER.md"
             body="Architecture deep-dive, competitive landscape (Coinbase x402, Virtuals ACP, registries), customer use cases (banks, M&A, title, healthcare, legal), risk model, roadmap incl. Phase 3 dNFT integration."
           />
           <DocCard
