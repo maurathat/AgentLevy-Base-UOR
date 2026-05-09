@@ -91,7 +91,7 @@ export default function AuditPage() {
                 Paste the contents of{" "}
                 <a
                   className="font-mono text-ruri hover:text-karakurenai"
-                  href="https://github.com/maurathat/verifiable-agent-settlement-standards"
+                  href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/agentlevy/mcp_server/kiro-mcp-config.json"
                   target="_blank"
                   rel="noreferrer"
                 >
