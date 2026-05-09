@@ -319,9 +319,15 @@ Standards consolidate fast once a category coalesces. Today's specs are publishe
 
 Base ships first in this hackathon submission. The sibling implementation [AgentLevy-XRPL-UOR](https://github.com/maurathat/AgentLevy-XRPL-UOR) targets XRPL XLS-100 SmartEscrow + RLUSD with **the same protocol primitives** — only the settlement adapter differs. **One protocol, two live chains**, proving UOR-ADDR-1's chain-binding adapter pattern works: any chain supporting a hashlock-conditional release can be added without changing the protocol layer (Hedera EVM, Solana, Sui — each gets an adapter; agents stay chain-agnostic).
 
-### Phase 4 (next): AgentCore Memory upgrade for stateful agents
+### Phase 4 (next): AgentCore Memory upgrade + Solana Merkle aggregation
 
-Today's AWS Lambda sanctions agent is **stateless** — perfect for one-shot screening. Phase 4 upgrades it to a **stateful AgentCore-hosted variant** for cross-day fraud detection, learning patterns over time. The handler shape, request format, and orchestrator integration stay identical; only the runtime changes from Lambda to AgentCore Runtime + AgentCore Memory. **AgentCore makes the agent capable. UOR cert chains make its work verifiable. Together: regulated agent commerce, productized.**
+Two upgrades that compose on top of the current architecture without changing the protocol layer:
+
+**(a) AWS Bedrock AgentCore Memory — stateful agents.**
+Today's AWS Lambda sanctions agent is **stateless** — perfect for one-shot screening. Phase 4 upgrades it to a **stateful AgentCore-hosted variant** for cross-day fraud detection, pattern learning over time, and cross-agent memory sharing. The handler shape, request format, and orchestrator integration stay identical; only the runtime changes from Lambda to AgentCore Runtime + AgentCore Memory. **AgentCore makes the agent capable. UOR cert chains make its work verifiable.** Combined: vendor-trusted memory + math-verifiable provenance over that memory — a composition no other agent-commerce protocol has shipped.
+
+**(b) Solana Merkle aggregation — high-volume audit anchoring.**
+Today's Hedera HCS individual-anchor pattern (~$0.0001/cert) is optimal for KYC + M&A + multi-agent workflow volumes (tens-to-hundreds of certs/day). At RoyaltAI scale (per-inference billing, 100K+ certs/day), individual anchoring costs ~$10/day; **Solana Merkle aggregation** (batch N certs into a Merkle tree off-chain → submit one Solana transaction with the root → verify any individual cert with a Merkle proof) reduces this to effectively free, with mathematically equivalent inclusion guarantees. The chain-binding adapter pattern in UOR-ADDR-1 means we add Solana as an *additional* audit-anchor option without replacing Hedera HCS — different chains for different audit horizons. **Hedera for legal-grade individual timestamping; Solana Merkle for inference-scale batching. Both valid; both simultaneously deployable.**
 
 ### Verifiable agent memory + AI inference provenance
 
