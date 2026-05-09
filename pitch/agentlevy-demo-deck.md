@@ -73,7 +73,7 @@ A settlement primitive for agent commerce needs to make the **work itself** cryp
 |---|---|---|
 | **Coinbase x402** | HTTP-layer payment rail (HTTP 402 reactivation; per-request USDC on Base) | Payment ≠ verification. x402 says *the money moved*; AgentLevy says *the work matched the spec, here's the math*. **Composable, not competitive** — x402 could call AgentLevy as its verifier. |
 | **Coinbase Commerce escrow** | Crypto escrow for traditional commerce | **Custodial.** Coinbase IS the trust anchor. The whole point of AgentLevy is removing the trust anchor. |
-| **Virtuals Protocol (ACP)** | Agent commerce on Base; tokenized agents; TEE attestation | Platform-bound to Base + Virtuals tokens. Agent-token economics are a *marketplace* primitive, not a *settlement* primitive. AgentLevy is chain-neutral, token-free, audit-first. |
+| **Virtuals Protocol (ACP)** | Agent commerce on Base; tokenized agents; smart-contract attestation | Platform-bound to Base + Virtuals tokens. Agent-token economics are a *marketplace* primitive, not a *settlement* primitive. AgentLevy is chain-neutral, token-free, audit-first. |
 | **DID / KYC registries** (Civic, Worldcoin, Moca) | "Who is this agent" | "What did this agent actually do" — silent. |
 | **Agent-platform SDKs** (Anthropic, OpenAI, Hedera AgentKit, Fetch.ai, Olas) | Agent identity + discovery within their walled garden | Cross-vendor verification; long-horizon auditability. |
 | **Web3 oracles** (Chainlink, etc.) | Bridge external data onchain | Trusted-oracle model. AgentLevy needs no oracle — the cert chain IS the oracle. |

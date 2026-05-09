@@ -16,17 +16,17 @@ export function BrandFooter() {
           <div className="eyebrow">Standards</div>
           <ul className="mt-3 space-y-2 text-washi/80">
             <li>
-              <a className="hover:text-karakurenai" href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/VTEAI-DRAFT.md">
+              <a className="hover:text-karakurenai" href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/VTEAI-DRAFT.md">
                 VTEAI ERC draft
               </a>
             </li>
             <li>
-              <a className="hover:text-karakurenai" href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/UOR-ADDR-PROPOSAL.md">
+              <a className="hover:text-karakurenai" href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md">
                 UOR-ADDR-1 proposal
               </a>
             </li>
             <li>
-              <a className="hover:text-karakurenai" href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/WHITEPAPER.md">
+              <a className="hover:text-karakurenai" href="https://github.com/maurathat/verifiable-agent-settlement-standards">
                 AgentLevy whitepaper
               </a>
             </li>
@@ -46,7 +46,7 @@ export function BrandFooter() {
               </a>
             </li>
             <li>
-              <a className="hover:text-karakurenai" href="https://github.com/maurathat/AgentLevy-Base-UOR" target="_blank" rel="noreferrer">
+              <a className="hover:text-karakurenai" href="https://github.com/maurathat/verifiable-agent-settlement-standards" target="_blank" rel="noreferrer">
                 Source code ↗
               </a>
             </li>

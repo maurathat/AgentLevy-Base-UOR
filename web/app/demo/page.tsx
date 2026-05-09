@@ -206,16 +206,16 @@ export default function DemoPage() {
               <p className="mt-12 text-sumi/70 text-sm max-w-3xl">
                 Source code:{" "}
                 <a
-                  href="https://github.com/maurathat/AgentLevy-Base-UOR"
+                  href="https://github.com/maurathat/verifiable-agent-settlement-standards"
                   className="text-ruri hover:text-karakurenai"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  github.com/maurathat/AgentLevy-Base-UOR
+                  github.com/maurathat/verifiable-agent-settlement-standards
                 </a>{" "}
                 · whitepaper:{" "}
                 <a
-                  href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/WHITEPAPER.md"
+                  href="https://github.com/maurathat/verifiable-agent-settlement-standards"
                   className="text-ruri hover:text-karakurenai"
                   target="_blank"
                   rel="noreferrer"

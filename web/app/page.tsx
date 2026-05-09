@@ -32,7 +32,7 @@ export default function Home() {
             Run the demo →
           </Link>
           <a
-            href="https://github.com/maurathat/AgentLevy-Base-UOR"
+            href="https://github.com/maurathat/verifiable-agent-settlement-standards"
             target="_blank"
             rel="noreferrer"
             className="px-7 py-3 border border-washi/30 hover:border-karakurenai hover:text-karakurenai transition-colors font-body font-semibold rounded-sm"
@@ -61,7 +61,7 @@ export default function Home() {
               eyebrow: "Verified ✓ May 3, 2026",
               label: "Byte-identical to UOR Passport",
               value: "mcp.uor.foundation",
-              href: "https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/docs/UOR_PASSPORT_VERIFIED.md",
+              href: "https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/EDGE.md#3-byte-identical-to-uor-foundation-canonical-reference",
             },
           ].map((card) => (
             <a
@@ -166,14 +166,14 @@ export default function Home() {
               tag="ERC draft · CC0 · April 2026"
               title="VTEAI"
               subtitle="Verified Task Escrow + Attestation Interface"
-              href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/VTEAI-DRAFT.md"
+              href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/VTEAI-DRAFT.md"
               authored
             />
             <StandardCard
               tag="Community proposal · April 2026"
               title="UOR-ADDR-1"
               subtitle="Universal Object Reference Address"
-              href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/UOR-ADDR-PROPOSAL.md"
+              href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md"
               authored
             />
             <StandardCard

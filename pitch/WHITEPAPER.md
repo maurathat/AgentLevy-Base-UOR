@@ -252,7 +252,7 @@ The key claim — "verifiable from public keys alone, across two independent led
 
 A verifier with `(buyer_pubkey, compliance_pubkey, sanctions_pubkey, the 5 certs)` can independently confirm:
 
-1. **Every signature is valid.** Ed25519 verify against canonical bytes (excluding the signature field). Standard cryptography library; no trusted execution environment needed.
+1. **Every signature is valid.** Ed25519 verify against canonical bytes (excluding the signature field). Standard cryptography library; no specialized hardware required.
 2. **Every content address resolves.** Recompute SHA-256 over JCS-RFC8785 + NFC canonical bytes; match against the reference. The reference implementation is open-source; the canonicalization rules are RFC-published.
 3. **Every back-reference is consistent.** `task_spec_address` on the cert resolves to the actual TaskSpec; `input_addresses` resolve to the actual inputs the spec declared; `subcontract_cert_addresses` resolve to actual child certs.
 4. **Every cert was witnessed by Hedera.** A single HTTP GET to Hedera Mirror Node REST returns the message body that was anchored, the consensus timestamp, the sequence number. Compare against the cert's `hcs_receipt`; verify match.
@@ -296,14 +296,14 @@ Increasingly common stack: agent identity via DIDs, payment via x402-style rails
 
 #### Virtuals Protocol (ACP — Agent Commerce Protocol)
 
-**What it is:** A platform on Base for tokenized AI agents. Each agent has a tradeable token; revenue from agent usage flows to token holders. ACP defines agent-to-agent transaction primitives — negotiation envelopes, payment rails, result delivery — built around TEE attestation for sensitive computation.
+**What it is:** A platform on Base for tokenized AI agents. Each agent has a tradeable token; revenue from agent usage flows to token holders. ACP defines agent-to-agent transaction primitives — negotiation envelopes, payment rails, result delivery — with platform-managed attestation for sensitive computation.
 
 **What it solves:** A tightly-integrated agent marketplace with economic incentives for agent creators. Discovery + payment + delivery in one stack.
 
 **What it doesn't solve (vs AgentLevy):**
 - **Platform-bound to Base + Virtuals tokens.** AgentLevy is chain-neutral; the same protocol runs on Base today (this submission) and on XRPL today (sibling impl), and via UOR-ADDR-1 adapters on any other chain.
 - **Marketplace primitive vs settlement primitive.** ACP is great for "agents discover + transact with each other in a token economy"; AgentLevy is for "this work was performed, here's the math, anyone can verify forever."
-- **TEE attestation vs cryptographic-cert chains.** TEE attestation requires trusting Intel/AMD/etc. + the TEE provider's attestation service. A cert chain anchored on two independent public ledgers requires trusting math + open consensus.
+- **Platform-managed attestation vs cryptographic-cert chains.** Centralized attestation requires trusting the platform operator and their attestation service. A cert chain anchored on two independent public ledgers requires trusting math + open consensus, with no operator in the loop.
 
 ACP and AgentLevy address adjacent problems; an enterprise might use both — Virtuals for discovery and economic incentives, AgentLevy for the audit trail their regulator demands.
 

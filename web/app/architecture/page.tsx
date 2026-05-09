@@ -139,19 +139,19 @@ export default function ArchitecturePage() {
           <DocCard
             title="AgentLevy Whitepaper"
             tag="~5,000 words · v1.0"
-            href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/WHITEPAPER.md"
+            href="https://github.com/maurathat/verifiable-agent-settlement-standards"
             body="Architecture deep-dive, competitive landscape (Coinbase x402, Virtuals ACP, registries), customer use cases (banks, M&A, title, healthcare, legal), risk model, roadmap incl. Phase 3 dNFT integration."
           />
           <DocCard
             title="VTEAI ERC draft"
             tag="we authored · CC0 · April 2026"
-            href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/VTEAI-DRAFT.md"
+            href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/VTEAI-DRAFT.md"
             body="Verified Task Escrow + Attestation Interface — the chain-neutral settlement spec. Standardizes the onchain interface; intentionally content-addressing-method-neutral."
           />
           <DocCard
             title="UOR-ADDR-1 proposal"
             tag="we co-contribute · April 2026"
-            href="https://github.com/maurathat/AgentLevy-Base-UOR/blob/main/pitch/UOR-ADDR-PROPOSAL.md"
+            href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md"
             body="Universal Object Reference Address — JCS-RFC8785 + NFC canonicalization, sha256:hex envelope, PRISM ring algebra. AgentLevy's content addressing is byte-identical to UOR Foundation's reference."
           />
         </div>

@@ -122,15 +122,19 @@ AgentLevy-Base-UOR/
 | Artifact | URL |
 |---|---|
 | **Live website** | [https://agentlevy-maurathats-projects.vercel.app](https://agentlevy-maurathats-projects.vercel.app) |
-| **GitHub repository** (this submission — Base + AWS + KIRO) | https://github.com/maurathat/AgentLevy-Base-UOR |
-| **Sibling implementation** (XRPL + RLUSD — same protocol, different chain adapter) | https://github.com/maurathat/AgentLevy-XRPL-UOR |
-| **Deployed Solidity escrow** (Base Sepolia) | https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3 |
-| **Hedera HCS audit topic** (testnet) | https://hashscan.io/testnet/topic/0.0.8856047 |
+| **Open standards repository** (VTEAI + UOR-ADDR-1, Apache 2.0 / CC0, public) | https://github.com/maurathat/verifiable-agent-settlement-standards |
+| **VTEAI ERC draft** (CC0) | https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/VTEAI-DRAFT.md |
+| **UOR-ADDR-1 proposal** | https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md |
+| **Cross-chain feasibility + chain-binding adapters** | https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/CROSS-CHAIN.md |
+| **Reference implementation — Base + AWS + KIRO** (Apache 2.0; private during commercial discussions) | https://github.com/maurathat/AgentLevy-Base-UOR |
+| **Sibling implementation — XRPL + RLUSD** (same protocol, different chain adapter; private during commercial discussions) | https://github.com/maurathat/AgentLevy-XRPL-UOR |
+| **Deployed Solidity escrow** (Base Sepolia, public on-chain) | https://sepolia.basescan.org/address/0x5A23958AD961AC31C71C7FB725084Ede34FD6ef3 |
+| **Hedera HCS audit topic** (testnet, public on-chain) | https://hashscan.io/testnet/topic/0.0.8856047 |
 | **AWS Lambda endpoint** | `https://1q4dt1zune.execute-api.us-east-1.amazonaws.com/screen` |
-| **VTEAI ERC draft** | [pitch/VTEAI-DRAFT.md](pitch/VTEAI-DRAFT.md) |
-| **UOR-ADDR-1 proposal** | [pitch/UOR-ADDR-PROPOSAL.md](pitch/UOR-ADDR-PROPOSAL.md) |
-| **Whitepaper** | [pitch/WHITEPAPER.md](pitch/WHITEPAPER.md) |
+| **Whitepaper** (private during commercial discussions) | [pitch/WHITEPAPER.md](pitch/WHITEPAPER.md) |
 | **Security audit** (self-audit; 0 HIGH, 2 MEDIUM, 4 LOW; Bandit clean across 2,642 LoC) | [pitch/SECURITY-AUDIT.md](pitch/SECURITY-AUDIT.md) |
+
+> **Open-source posture.** AgentLevy follows the industry-standard pattern for protocol projects with commercial intent: **standards public** (VTEAI + UOR-ADDR-1, both CC0/Apache, openly maintained at the standards repo above), **reference implementation currently private** during active commercial partnership discussions. This is the same posture used by Uniswap, Aave, and Stripe at equivalent stages. Any party interested in implementing the standards can do so today against the public specification. Live testnet anchors (Base Sepolia escrow, Hedera HCS topic) remain publicly verifiable on-chain regardless of repo state.
 
 ---
 

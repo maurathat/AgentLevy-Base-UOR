@@ -24,7 +24,7 @@ export function BrandHeader() {
             Deck
           </Link>
           <a
-            href="https://github.com/maurathat/AgentLevy-Base-UOR"
+            href="https://github.com/maurathat/verifiable-agent-settlement-standards"
             target="_blank"
             rel="noreferrer"
             className="hover:text-karakurenai transition-colors"

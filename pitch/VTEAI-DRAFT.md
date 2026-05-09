@@ -227,7 +227,7 @@ This ERC intentionally does not standardize:
 - task transport over HTTP or x402
 - offchain task manifest schema
 - output storage location
-- whether the verifier is centralized, decentralized, attested, or TEE-backed
+- the verifier trust model (centralized, decentralized, multi-party-attested, oracle-anchored, etc.)
 
 However, interoperable implementations SHOULD ensure that:
 
@@ -251,9 +251,9 @@ This ERC is intentionally **content-addressing-method-neutral**: any determinist
 
 Different implementations may prefer direct transfer or pull-based withdrawals. The standard therefore focuses on the settlement outcome rather than enforcing a single payout delivery model.
 
-### Why not standardize TEE or attestation format directly?
+### Why not standardize the verifier trust model or attestation format directly?
 
-Verifier trust models will evolve. Some deployments may use a deterministic server verifier, while others may use TEE-backed confidential compute, decentralized verifiers, or attestation frameworks such as FDC. This ERC standardizes the settlement interface and leaves the verifier trust model to implementation-specific documentation.
+Verifier trust models will evolve. Some deployments may use a deterministic server verifier, while others may use multi-signer consortium verifiers, decentralized verifiers, oracle-anchored attestations, or attestation frameworks such as FDC. This ERC standardizes the settlement interface and leaves the verifier trust model to implementation-specific documentation.
 
 ## Recommended Companion Standards
 
@@ -289,7 +289,7 @@ This ERC also composes with existing task marketplaces and agent frameworks by p
 
 Implementers should consider at minimum:
 
-- **Verifier trust assumptions**: a naive server verifier introduces operator trust. TEE-backed or attested verifier infrastructure provides stronger guarantees.
+- **Verifier trust assumptions**: a naive server verifier introduces operator trust. Multi-party verifier consortiums, decentralized verifier networks, or oracle-anchored attestations may provide stronger guarantees depending on deployment context.
 - **Spec availability**: if `taskSpecHash` cannot be resolved to the actual task definition, interoperability and dispute handling degrade.
 - **Replay and duplication**: `taskId` uniqueness and attestation replay protections are essential.
 - **Settlement safety**: queued withdrawals are safer than direct push transfers when workers may be smart contracts.
