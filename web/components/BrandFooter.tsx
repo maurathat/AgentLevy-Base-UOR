@@ -21,8 +21,8 @@ export function BrandFooter() {
               </a>
             </li>
             <li>
-              <a className="hover:text-karakurenai" href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md">
-                UOR-ADDR-1 proposal
+              <a className="hover:text-karakurenai" href="https://github.com/UOR-Foundation/uor-addr-1">
+                UOR-ADDR-1 (UOR Foundation standard)
               </a>
             </li>
             <li>

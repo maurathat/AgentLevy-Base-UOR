@@ -149,10 +149,10 @@ export default function ArchitecturePage() {
             body="Verified Task Escrow + Attestation Interface — the chain-neutral settlement spec. Standardizes the onchain interface; intentionally content-addressing-method-neutral."
           />
           <DocCard
-            title="UOR-ADDR-1 proposal"
-            tag="we co-contribute · April 2026"
-            href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md"
-            body="Universal Object Reference Address — JCS-RFC8785 + NFC canonicalization, sha256:hex envelope, PRISM ring algebra. AgentLevy's content addressing is byte-identical to UOR Foundation's reference."
+            title="UOR-ADDR-1 standard"
+            tag="we authored · UOR Foundation-adopted · May 2026"
+            href="https://github.com/UOR-Foundation/uor-addr-1"
+            body="Universal Object Reference Address — JCS-RFC8785 + NFC canonicalization, sha256:hex envelope, PRISM ring algebra. Officially adopted by the UOR Foundation in May 2026; AgentLevy's content addressing is byte-identical to the Foundation's reference implementation."
           />
         </div>
       </section>
