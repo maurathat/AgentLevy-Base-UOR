@@ -170,10 +170,10 @@ export default function Home() {
               authored
             />
             <StandardCard
-              tag="Community proposal · April 2026"
+              tag="UOR Foundation · adopted · May 2026"
               title="UOR-ADDR-1"
               subtitle="Universal Object Reference Address"
-              href="https://github.com/maurathat/verifiable-agent-settlement-standards/blob/main/UOR-ADDR-PROPOSAL.md"
+              href="https://github.com/UOR-Foundation/uor-addr-1"
               authored
             />
             <StandardCard
