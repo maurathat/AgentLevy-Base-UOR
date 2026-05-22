@@ -11,6 +11,9 @@ export function BrandHeader() {
           <span className="font-kanji text-washi/60 text-base">·  決済</span>
         </Link>
         <div className="flex items-center gap-7 text-sm text-washi/80">
+          <Link href="/royaltai" className="hover:text-karakurenai transition-colors font-semibold">
+            RoyaltAI
+          </Link>
           <Link href="/demo" className="hover:text-karakurenai transition-colors">
             Demo
           </Link>
